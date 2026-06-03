@@ -36,13 +36,13 @@
           background_color: "#f5f5f7",
           theme_color: "#f5f5f7",
           icons: [
-            { 
-              src: "image1-9.svg", 
-              sizes: "any", 
-              type: "image/svg+xml" 
-            },
             {
               src: "image1-9.svg",
+              sizes: "any",
+              type: "image/svg+xml",
+            },
+            {
+              src: "rec1.svg",
               sizes: "any",
               type: "image/svg+xml",
               purpose: "maskable",
@@ -66,7 +66,7 @@
     // ── QuickBill Service Worker ──────────────────────────────────────────
     // Cache name — bump this string whenever you deploy a new version of the
     // HTML so all phones pick up the update on next load.
-    const CACHE = 'quickbill-v5';
+    const CACHE = 'quickbill-v6';
 
     // These are the URLs that must be available offline.
     // The app shell (HTML + local JS) is served from the same origin,
@@ -976,7 +976,7 @@ const PRECACHE = [
       #app {
         max-width: 600px;
         margin: 0 auto;
-        height: 100dvh;
+        height: 100%;
         display: flex;
         flex-direction: column;
         background: var(--bg);
