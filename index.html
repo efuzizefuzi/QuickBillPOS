@@ -26,7 +26,8 @@
 
     <script>
       (function () {
-        const iconUrl = 'image1-9.svg';
+        const iconSvg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%230f0f0f'/><text x='256' y='340' font-family='Arial Black,sans-serif' font-size='260' font-weight='900' text-anchor='middle' fill='%23f5c518'>QB</text></svg>`;
+        const iconUrl = `data:image/svg+xml,${iconSvg}`;
         const manifest = {
           name: "QuickBill",
           short_name: "QuickBill",
@@ -6229,7 +6230,6 @@ const PRECACHE = [
       <div class="header">
         <div class="header-top">
           <div class="logo-wrap">
-            <img src="image1-9.svg" alt="QB Logo" style="height: 26px; width: auto; object-fit: contain; display: block;" />
             <div class="logo">Quick<span>Bill</span></div>
             <span
               class="tally-status-dot"
