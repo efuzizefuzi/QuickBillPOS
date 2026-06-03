@@ -26,8 +26,6 @@
 
     <script>
       (function () {
-        const iconSvg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%230f0f0f'/><text x='256' y='340' font-family='Arial Black,sans-serif' font-size='260' font-weight='900' text-anchor='middle' fill='%23f5c518'>QB</text></svg>`;
-        const iconUrl = `data:image/svg+xml,${iconSvg}`;
         const manifest = {
           name: "QuickBill",
           short_name: "QuickBill",
@@ -35,15 +33,19 @@
           start_url: "./",
           display: "standalone",
           orientation: "portrait",
-          background_color: "#0f0f0f",
-          theme_color: "#0f0f0f",
+          background_color: "#f5f5f7",
+          theme_color: "#f5f5f7",
           icons: [
-            { src: iconUrl, sizes: "192x192", type: "image/svg+xml" },
+            { 
+              src: "image1-9.svg", 
+              sizes: "any", 
+              type: "image/svg+xml" 
+            },
             {
-              src: iconUrl,
-              sizes: "512x512",
+              src: "image1-9.svg",
+              sizes: "any",
               type: "image/svg+xml",
-              purpose: "any maskable",
+              purpose: "maskable",
             },
           ],
         };
@@ -64,7 +66,7 @@
     // ── QuickBill Service Worker ──────────────────────────────────────────
     // Cache name — bump this string whenever you deploy a new version of the
     // HTML so all phones pick up the update on next load.
-    const CACHE = 'quickbill-v4';
+    const CACHE = 'quickbill-v5';
 
     // These are the URLs that must be available offline.
     // The app shell (HTML + local JS) is served from the same origin,
@@ -501,39 +503,54 @@ const PRECACHE = [
   </script> -->
     <script>
       /**
-       * xml-generator.js (Updated for XML Automation Pro)
+       * xml-generator.js
        * ─────────────────────────────────────────────────────────────────────────────
-       * Self-contained XML generation engine.
+       * Self-contained XML generation engine extracted from XMLgenerator SUPER PRO.
        * Exposes a single global object: window.XmlGen
        *
        * Public API
        * ──────────
-       * XmlGen.loadPreset(presetJson)
-       * • Accepts a preset JSON object.
-       * • Parses the config and stores it internally.
-       * • Returns { ok: true } or { ok: false, error: string }
+       *   XmlGen.loadPreset(presetJson)
+       *     • Accepts a preset JSON object (the format exported by XMLgenerator).
+       *     • Accepts either a raw config { rootKey, children }
+       *       or a preset bundle { "My Preset Name": { rootKey, children } }.
+       *     • Returns { ok: true, name } or { ok: false, error: string }
        *
-       * XmlGen.generate(dataArray)
-       * • dataArray : Array of flat objects.
-       * • Uses the last loaded preset to build XML.
-       * • Returns the XML string, or throws if no preset is loaded.
+       *   XmlGen.generate(dataArray, rawJson?)
+       *     • dataArray : Array of objects (the records to iterate over).
+       *     • rawJson   : Optional — the original parsed JSON before rootKey
+       *                   extraction (needed when repeat keys point to top-level
+       *                   arrays on a nested JSON object).
+       *     • Uses the last loaded preset to build XML.
+       *     • Returns the XML string, or throws if no preset is loaded.
        *
-       * XmlGen.hasPreset()
-       * • Returns true if a preset has been successfully loaded.
+       *   XmlGen.hasPreset()  → true if a preset has been successfully loaded.
+       *   XmlGen.presetName() → name of the currently loaded preset (string | null).
+       *   XmlGen.clearPreset() → unloads the current preset.
        *
-       * XmlGen.presetName()
-       * • Returns the name of the currently loaded preset (string | null).
+       * Serialised node schema (mirrors XMLgenerator SUPER PRO)
+       * ────────────────────────────────────────────────────────
+       * Row node:
+       *   { type, tag, fixed, jsonKey, skip, skipIfKey, skipIfValue,
+       *     tagMode, repeat, repeatKey, prefix, suffix,
+       *     attrs: [{ name, fixed, jsonKey }] }
+       *
+       * Group node:
+       *   { type, name, repeat, repeatKey, skipIfKey, skipIfValue,
+       *     attrs: [{ name, fixed, jsonKey }],
+       *     children: [ ...row|group nodes ] }
        * ─────────────────────────────────────────────────────────────────────────────
        */
       (function (global) {
         "use strict";
 
-        // ── Internal state ────────────────────────────────────────────────────────
-        let _config = null; // { wrapper, rootKey, children }
+        // ── Internal state ──────────────────────────────────────────────────────────
+        let _config = null; // { rootKey, children }
         let _presetName = null;
-        let _rawJson = null; // raw parsed JSON (may be object, used for top-level repeatKey fallback)
 
-        // ── Dot-notation value resolver ───────────────────────────────────────────
+        // ── Helpers ─────────────────────────────────────────────────────────────────
+
+        /** Dot-notation deep getter.  getByDot({a:{b:1}}, "a.b") → 1 */
         function getByDot(obj, path) {
           if (!path) return undefined;
           return path
@@ -545,8 +562,10 @@ const PRECACHE = [
             );
         }
 
-        // ── Attribute string builder ──────────────────────────────────────────────
-        // attrsDef : Array<{ name, fixed, jsonKey }>
+        /**
+         * Build an XML attribute string from an attrs definition array.
+         * attrsDef: Array<{ name, fixed, jsonKey }>
+         */
         function buildAttrsStr(attrsDef, item) {
           if (!attrsDef || !attrsDef.length) return "";
           return attrsDef.reduce((s, a) => {
@@ -558,18 +577,22 @@ const PRECACHE = [
           }, "");
         }
 
-        // ── Value resolution ──────────────────────────────────────────────────────
+        /**
+         * Resolve the output value(s) for a tag.
+         * Returns { values: string[], warn: boolean }
+         * warn=true means the JSON key was present but not found in the record.
+         */
         function resolveValue(fixed, jsonKey, item) {
           const hasJsonKey = jsonKey && jsonKey.trim() !== "";
           if (!hasJsonKey) return { values: [fixed ?? ""], warn: false };
 
           const raw = getByDot(item, jsonKey);
-          if (raw === undefined || raw === null)
+          if (raw === undefined || raw === null) {
             return {
               values: [fixed !== undefined && fixed !== "" ? fixed : ""],
               warn: true,
             };
-
+          }
           if (Array.isArray(raw)) {
             if (raw.length === 0) return { values: [""], warn: false };
             return {
@@ -582,43 +605,26 @@ const PRECACHE = [
           return { values: [String(raw)], warn: false };
         }
 
-        // ── Skip-condition helper ─────────────────────────────────────────────────
-        function shouldSkip(v, skip, skipIfKey, skipIfValue, item) {
-          if (skip && (v === "" || v === null || v === undefined)) return true;
-
-          if (skipIfValue) {
-            let checkVal = String(v ?? "");
-            if (skipIfKey) {
-              const skipCtx = item || {};
-              const resolvedRaw = getByDot(skipCtx, skipIfKey);
-              checkVal =
-                resolvedRaw !== undefined && resolvedRaw !== null
-                  ? String(resolvedRaw)
-                  : "";
-            }
-
-            const toks = skipIfValue.split("|").map((t) => t.trim());
-            if (toks.some((t) => checkVal === t)) return true;
-          }
-          return false;
-        }
-
-        // ── Recursive XML renderer ────────────────────────────────────────────────
-        // children : Array of node-descriptor objects (from preset config)
-        // item     : current JSON record context
-        // dataArr  : full data array (for REPEAT nodes)
-        // indent   : indentation level (spaces)
-        //
-        // Returns { xml: string, skipParent: boolean }
-        function renderChildren(children, item, dataArr, indent) {
-          if (!children || !children.length)
-            return { xml: "", skipParent: false };
+        // ── Recursive XML renderer ───────────────────────────────────────────────────
+        /**
+         * Render an array of node descriptors to an XML string.
+         *
+         * @param {Array}  children  - Serialised node descriptors from the preset.
+         * @param {object} item      - Current JSON record context (may be null).
+         * @param {Array}  dataArr   - Full data array (used by REPEAT nodes).
+         * @param {number} indent    - Current indentation in spaces.
+         * @param {*}      rawJson   - Original parsed JSON before rootKey extraction
+         *                             (used to resolve top-level repeat keys on
+         *                             nested JSON objects).
+         * @returns {string}
+         */
+        function renderChildren(children, item, dataArr, indent, rawJson) {
+          if (!children || !children.length) return "";
           const sp = " ".repeat(indent);
           let result = "";
-          let triggerSkipParent = false;
 
           children.forEach((node) => {
-            // ── ROW ──────────────────────────────────────────────────────────────
+            // ── ROW ───────────────────────────────────────────────────────────────
             if (node.type === "row") {
               const tagName = (node.tag || "").trim();
               if (!tagName) return;
@@ -627,14 +633,50 @@ const PRECACHE = [
               const jsonKey = node.jsonKey || "";
               const skip = node.skip || false;
               const skipIfKey = (node.skipIfKey || "").trim();
-              const skipIfValue = (node.skipIfValue || "").trim();
-              const skipParent = node.skipParent || false; // Legacy fallback
+              const skipIfVal = (node.skipIfValue || "").trim();
               const tagMode = node.tagMode || "both";
               const repeatOn = node.repeat || false;
               const repeatKey = (node.repeatKey || "").trim();
-              const attrsDef = node.attrs || [];
               const prefix = node.prefix || "";
               const suffix = node.suffix || "";
+              const attrsDef = node.attrs || [];
+
+              /**
+               * Decide whether to suppress a resolved value.
+               * @param {*}      v           - The resolved output value.
+               * @param {object} currentItem - The JSON context for this iteration.
+               */
+              function shouldSkip(v, currentItem) {
+                // SKIP checkbox: omit empty / null / undefined values
+                if (skip && (v === "" || v === null || v === undefined))
+                  return true;
+
+                if (skipIfVal) {
+                  let checkVal = String(v ?? "");
+                  if (skipIfKey) {
+                    // Skip-If with a separate JSON key: compare that key's value
+                    const raw = getByDot(currentItem || {}, skipIfKey);
+                    checkVal =
+                      raw !== undefined && raw !== null ? String(raw) : "";
+                  }
+                  const tokens = skipIfVal.split("|").map((t) => t.trim());
+                  if (tokens.some((t) => checkVal === t)) return true;
+                }
+                return false;
+              }
+
+              /** Emit one tag line */
+              function emitTag(v, ctx) {
+                if (shouldSkip(v, ctx)) return;
+                const strV = String(v ?? "");
+                const decorated = prefix + strV + suffix;
+                const attrsStr = buildAttrsStr(attrsDef, ctx);
+                if (tagMode === "open")
+                  result += `${sp}<${tagName}${attrsStr}>\n`;
+                else if (tagMode === "close") result += `${sp}</${tagName}>\n`;
+                else
+                  result += `${sp}<${tagName}${attrsStr}>${decorated}</${tagName}>\n`;
+              }
 
               if (repeatOn) {
                 // ── TAG REPEAT MODE ───────────────────────────────────────────────
@@ -644,8 +686,9 @@ const PRECACHE = [
                   const found = getByDot(ctx, repeatKey);
                   if (Array.isArray(found)) {
                     arr = found;
-                  } else if (_rawJson && !Array.isArray(_rawJson)) {
-                    const topLevel = getByDot(_rawJson, repeatKey);
+                  } else if (rawJson && !Array.isArray(rawJson)) {
+                    // Fall back to top-level key on the original nested JSON object
+                    const topLevel = getByDot(rawJson, repeatKey);
                     if (Array.isArray(topLevel)) arr = topLevel;
                   }
                   if (!arr) arr = dataArr;
@@ -659,88 +702,51 @@ const PRECACHE = [
                       subItem !== null && typeof subItem === "object"
                         ? subItem
                         : { _value: subItem };
-                    const attrsStr = buildAttrsStr(attrsDef, ctx);
-                    const { values } = resolveValue(fixedVal, jsonKey, ctx);
-                    values.forEach((v) => {
-                      if (shouldSkip(v, skip, skipIfKey, skipIfValue, ctx)) {
-                        if (skipParent) triggerSkipParent = true;
-                        return;
-                      }
-                      const out = prefix + String(v ?? "") + suffix;
-                      if (tagMode === "open")
-                        result += `${sp}<${tagName}${attrsStr}>\n`;
-                      else if (tagMode === "close")
-                        result += `${sp}</${tagName}>\n`;
-                      else
-                        result += `${sp}<${tagName}${attrsStr}>${out}</${tagName}>\n`;
-                    });
+                    resolveValue(fixedVal, jsonKey, ctx).values.forEach((v) =>
+                      emitTag(v, ctx),
+                    );
                   });
                 } else {
-                  // Nothing to repeat — render once with fixed
+                  // Nothing to repeat — render once with fixed value
                   const ctx = item || {};
-                  const attrsStr = buildAttrsStr(attrsDef, ctx);
-                  const { values } = resolveValue(fixedVal, jsonKey, ctx);
-                  values.forEach((v) => {
-                    if (shouldSkip(v, skip, skipIfKey, skipIfValue, ctx)) {
-                      if (skipParent) triggerSkipParent = true;
-                      return;
-                    }
-                    const out = prefix + String(v ?? "") + suffix;
-                    if (tagMode === "open")
-                      result += `${sp}<${tagName}${attrsStr}>\n`;
-                    else if (tagMode === "close")
-                      result += `${sp}</${tagName}>\n`;
-                    else
-                      result += `${sp}<${tagName}${attrsStr}>${out}</${tagName}>\n`;
-                  });
+                  resolveValue(fixedVal, jsonKey, ctx).values.forEach((v) =>
+                    emitTag(v, ctx),
+                  );
                 }
               } else {
-                // ── NORMAL TAG ────────────────────────────────────────────────────
+                // ── NORMAL (non-repeat) TAG ───────────────────────────────────────
                 const ctx = item || {};
-                const attrsStr = buildAttrsStr(attrsDef, ctx);
-                const { values } = resolveValue(fixedVal, jsonKey, ctx);
-                values.forEach((v) => {
-                  if (shouldSkip(v, skip, skipIfKey, skipIfValue, ctx)) {
-                    if (skipParent) triggerSkipParent = true;
-                    return;
-                  }
-                  const out = prefix + String(v ?? "") + suffix;
-                  if (tagMode === "open")
-                    result += `${sp}<${tagName}${attrsStr}>\n`;
-                  else if (tagMode === "close")
-                    result += `${sp}</${tagName}>\n`;
-                  else
-                    result += `${sp}<${tagName}${attrsStr}>${out}</${tagName}>\n`;
-                });
+                resolveValue(fixedVal, jsonKey, ctx).values.forEach((v) =>
+                  emitTag(v, ctx),
+                );
               }
 
-              // ── GROUP ─────────────────────────────────────────────────────────────
+              // ── GROUP ──────────────────────────────────────────────────────────────
             } else if (node.type === "group") {
               const groupName = (node.name || "").trim();
               if (!groupName) return;
 
-              // NEW: Evaluate explicit Group Skip condition from PRO version
-              const groupSkipIfKey = (node.skipIfKey || "").trim();
-              const groupSkipIfVal = (node.skipIfValue || "").trim();
-
-              if (groupSkipIfVal) {
-                const skipCtx = item || (dataArr && dataArr[0]) || {};
-                const resolvedRaw = groupSkipIfKey
-                  ? getByDot(skipCtx, groupSkipIfKey)
-                  : undefined;
-                const resolvedStr =
-                  resolvedRaw !== undefined && resolvedRaw !== null
-                    ? String(resolvedRaw)
-                    : "";
-                const tokens = groupSkipIfVal.split("|").map((t) => t.trim());
-                // If a skip match is found, immediately exit processing this group
-                if (tokens.some((t) => resolvedStr === t)) return;
-              }
-
               const repeatOn = node.repeat || false;
               const repeatKey = (node.repeatKey || "").trim();
+              const skipIfKey = (node.skipIfKey || "").trim();
+              const skipIfVal = (node.skipIfValue || "").trim();
               const attrsDef = node.attrs || [];
               const kids = node.children || [];
+
+              // ── GROUP SKIP-IF ──────────────────────────────────────────────────
+              if (skipIfVal) {
+                const ctx = item || (dataArr && dataArr[0]) || {};
+                const raw = skipIfKey ? getByDot(ctx, skipIfKey) : undefined;
+                const checkVal =
+                  raw !== undefined && raw !== null ? String(raw) : "";
+                const tokens = skipIfVal.split("|").map((t) => t.trim());
+                if (tokens.some((t) => checkVal === t)) return; // skip entire group
+              }
+
+              /** Render this group's children recursively */
+              function renderGroupChildren(ctx) {
+                return renderChildren(kids, ctx, dataArr, indent + 2, rawJson);
+              }
 
               if (repeatOn) {
                 // ── GROUP REPEAT MODE ─────────────────────────────────────────────
@@ -750,8 +756,8 @@ const PRECACHE = [
                   const found = getByDot(ctx, repeatKey);
                   if (Array.isArray(found)) {
                     arr = found;
-                  } else if (_rawJson && !Array.isArray(_rawJson)) {
-                    const topLevel = getByDot(_rawJson, repeatKey);
+                  } else if (rawJson && !Array.isArray(rawJson)) {
+                    const topLevel = getByDot(rawJson, repeatKey);
                     if (Array.isArray(topLevel)) arr = topLevel;
                   }
                   if (!arr) arr = dataArr;
@@ -766,91 +772,78 @@ const PRECACHE = [
                         ? subItem
                         : { _value: subItem };
                     const attrsStr = buildAttrsStr(attrsDef, ctx);
-                    const inner = renderChildren(
-                      kids,
-                      ctx,
-                      dataArr,
-                      indent + 2,
-                    );
-                    if (!inner.skipParent) {
-                      result += `${sp}<${groupName}${attrsStr}>\n`;
-                      result += inner.xml;
-                      result += `${sp}</${groupName}>\n`;
-                    }
+                    result += `${sp}<${groupName}${attrsStr}>\n`;
+                    result += renderGroupChildren(ctx);
+                    result += `${sp}</${groupName}>\n`;
                   });
                 } else {
-                  // Nothing to repeat — render once
-                  const attrsStr = buildAttrsStr(attrsDef, item || {});
-                  const inner = renderChildren(
-                    kids,
-                    item || {},
-                    dataArr,
-                    indent + 2,
-                  );
-                  if (!inner.skipParent) {
-                    result += `${sp}<${groupName}${attrsStr}>\n`;
-                    result += inner.xml;
-                    result += `${sp}</${groupName}>\n`;
-                  }
+                  // Nothing to repeat — render once with current item context
+                  const ctx = item || {};
+                  const attrsStr = buildAttrsStr(attrsDef, ctx);
+                  result += `${sp}<${groupName}${attrsStr}>\n`;
+                  result += renderGroupChildren(ctx);
+                  result += `${sp}</${groupName}>\n`;
                 }
               } else {
                 // ── FIXED / SINGLE RENDER ─────────────────────────────────────────
                 const ctx = item || (dataArr && dataArr[0]) || {};
                 const attrsStr = buildAttrsStr(attrsDef, ctx);
-                const inner = renderChildren(kids, ctx, dataArr, indent + 2);
-                if (!inner.skipParent) {
-                  result += `${sp}<${groupName}${attrsStr}>\n`;
-                  result += inner.xml;
-                  result += `${sp}</${groupName}>\n`;
-                }
+                result += `${sp}<${groupName}${attrsStr}>\n`;
+                result += renderGroupChildren(ctx);
+                result += `${sp}</${groupName}>\n`;
               }
             }
           });
 
-          return { xml: result, skipParent: triggerSkipParent };
+          return result;
         }
 
-        // ── Public API ────────────────────────────────────────────────────────────
+        // ── Public API ───────────────────────────────────────────────────────────────
         const XmlGen = {
           /**
-           * Load a preset exported from XMLgenerator.html.
+           * Load a preset exported from XMLgenerator SUPER PRO.
+           *
            * Accepts either:
-           * • Raw config   : { wrapper, rootKey, children }
-           * • Preset bundle: { "My Preset Name": { wrapper, rootKey, children } }
+           *   • Raw config   : { rootKey, children }
+           *   • Preset bundle: { "My Preset Name": { rootKey, children } }
+           *
+           * @param  {object} presetJson
+           * @returns {{ ok: boolean, name?: string, error?: string }}
            */
-          loadPreset(presetJson, rawJson = null) {
+          loadPreset(presetJson) {
             try {
               let config = null;
               let name = null;
 
               if (presetJson && typeof presetJson === "object") {
                 const keys = Object.keys(presetJson);
+
+                // Preset bundle: first key maps to a config object
                 if (
                   keys.length > 0 &&
                   presetJson[keys[0]] &&
                   typeof presetJson[keys[0]] === "object" &&
-                  ("children" in presetJson[keys[0]] ||
-                    "wrapper" in presetJson[keys[0]])
+                  "children" in presetJson[keys[0]]
                 ) {
-                  // Preset bundle — use first entry
                   name = keys[0];
                   config = presetJson[keys[0]];
-                } else if (
-                  "children" in presetJson ||
-                  "wrapper" in presetJson
-                ) {
-                  // Raw config
+
+                  // Raw config object
+                } else if ("children" in presetJson) {
                   config = presetJson;
                   name = "Preset";
                 }
               }
 
               if (!config)
-                return { ok: false, error: "Unrecognised preset format" };
+                return {
+                  ok: false,
+                  error:
+                    'Unrecognised preset format — expected { children } or { "Name": { children } }',
+                };
 
               _config = config;
               _presetName = name;
-              _rawJson = rawJson;
               return { ok: true, name };
             } catch (e) {
               return { ok: false, error: String(e) };
@@ -858,12 +851,16 @@ const PRECACHE = [
           },
 
           /**
-           * Generate XML from an array of data objects using the loaded preset.
-           * @param {Array}  dataArray — flat objects (e.g. from qb_settings_log)
-           * @param {*}      [rawJson] — optional raw JSON source (object or array);
-           * @returns {string}         — generated XML string
+           * Generate XML from an array of data records using the loaded preset.
+           *
+           * @param  {Array}  dataArray - Records to generate XML from.
+           * @param  {*}      [rawJson] - Original parsed JSON before rootKey slicing
+           *                             (pass this when your JSON was nested and you
+           *                             used a rootKey to select the array — needed
+           *                             so repeat keys can resolve top-level paths).
+           * @returns {string} Generated XML string.
            */
-          generate(dataArray, rawJson = undefined) {
+          generate(dataArray, rawJson) {
             if (!_config)
               throw new Error(
                 "No preset loaded. Call XmlGen.loadPreset() first.",
@@ -871,45 +868,38 @@ const PRECACHE = [
             if (!Array.isArray(dataArray))
               throw new Error("dataArray must be an Array.");
 
-            // Allow per-call rawJson override; fall back to what was set in loadPreset
-            if (rawJson !== undefined) _rawJson = rawJson;
-
-            // Note: `wrapper` is maintained strictly for legacy/backward compatibility.
-            const wrapper = (_config.wrapper || "").trim();
             const children = _config.children || [];
-
             const firstItem = dataArray.length ? dataArray[0] : null;
 
-            const rendered = renderChildren(children, firstItem, dataArray, 2);
-            const rowsXML = rendered.xml;
-
-            let output = rowsXML;
-            // Handle legacy preset wrapping
-            if (wrapper && wrapper.includes("***")) {
-              output = wrapper.replace("***", rowsXML.trimEnd());
-            }
-
-            return output || "(no output — check your preset configuration)";
+            const xml = renderChildren(
+              children,
+              firstItem,
+              dataArray,
+              2,
+              rawJson ?? null,
+            );
+            return xml || "(no output — check your preset configuration)";
           },
 
+          /** @returns {boolean} True if a preset has been loaded. */
           hasPreset() {
             return _config !== null;
           },
 
+          /** @returns {string|null} Name of the currently loaded preset. */
           presetName() {
             return _presetName;
           },
 
-          /** Clear the loaded preset and raw JSON reference */
+          /** Unload the current preset. */
           clearPreset() {
             _config = null;
             _presetName = null;
-            _rawJson = null;
           },
         };
 
         global.XmlGen = XmlGen;
-      })(window);
+      })(typeof window !== "undefined" ? window : global);
     </script>
     <script src="https://unpkg.com/lucide@0.383.0/dist/umd/lucide.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
@@ -6207,8 +6197,12 @@ const PRECACHE = [
 
   <body>
     <div id="splash">
-      <div class="splash-icon" style="border: none; background: transparent;">
-        <img src="image1-9.svg" alt="QuickBill" style="width: 100%; height: 100%; object-fit: contain;" />
+      <div class="splash-icon" style="border: none; background: transparent">
+        <img
+          src="image1-9.svg"
+          alt="QuickBill"
+          style="width: 100%; height: 100%; object-fit: contain"
+        />
       </div>
       <div class="splash-name">Quick<span>Bill</span></div>
       <div class="splash-sub">Fast Mobile Billing</div>
@@ -10227,6 +10221,7 @@ ${
           totalTaxAmount: totalTaxAmount.toFixed(2),
           halfTotalTaxAmount: halfTotalTaxAmount.toFixed(2),
           roundOff: (roundOff * -1).toFixed(2),
+          roundOffValue: roundOff > 0 ? "Yes" : roundOff < 0 ? "No" : "No",
         }));
 
         updateJsonDisplay();
@@ -12537,9 +12532,11 @@ ${
 
         const roundOff = parseFloat(firstItem.roundOff || "0");
         document.getElementById("posSumRoundOff").textContent =
-          roundOff < 0
-            ? `-${Math.abs(roundOff).toFixed(2)}`
-            : `+${roundOff.toFixed(2)}`;
+          roundOff > 0
+            ? `+${roundOff.toFixed(2)}`
+            : roundOff < 0
+              ? `-${Math.abs(roundOff).toFixed(2)}`
+              : `0.00`;
       }
 
       async function downloadPosBill() {
