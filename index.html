@@ -15,14 +15,8 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="theme-color" content="#f5f5f7" id="themeColorMeta" />
 
-    <link
-      rel="icon"
-      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%230f0f0f'/><text x='256' y='340' font-family='Arial Black,sans-serif' font-size='260' font-weight='900' text-anchor='middle' fill='%23f5c518'>QB</text></svg>"
-    />
-    <link
-      rel="apple-touch-icon"
-      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%230f0f0f'/><text x='256' y='340' font-family='Arial Black,sans-serif' font-size='260' font-weight='900' text-anchor='middle' fill='%23f5c518'>QB</text></svg>"
-    />
+    <link rel="icon" href="image1-9.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="image1-9.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -32,8 +26,7 @@
 
     <script>
       (function () {
-        const iconSvg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%230f0f0f'/><text x='256' y='340' font-family='Arial Black,sans-serif' font-size='260' font-weight='900' text-anchor='middle' fill='%23f5c518'>QB</text></svg>`;
-        const iconUrl = `data:image/svg+xml,${iconSvg}`;
+        const iconUrl = 'image1-9.svg';
         const manifest = {
           name: "QuickBill",
           short_name: "QuickBill",
@@ -6213,7 +6206,9 @@ const PRECACHE = [
 
   <body>
     <div id="splash">
-      <div class="splash-icon">QB</div>
+      <div class="splash-icon" style="border: none; background: transparent;">
+        <img src="image1-9.svg" alt="QuickBill" style="width: 100%; height: 100%; object-fit: contain;" />
+      </div>
       <div class="splash-name">Quick<span>Bill</span></div>
       <div class="splash-sub">Fast Mobile Billing</div>
       <div class="splash-bar">
@@ -6234,6 +6229,7 @@ const PRECACHE = [
       <div class="header">
         <div class="header-top">
           <div class="logo-wrap">
+            <img src="image1-9.svg" alt="QB Logo" style="height: 26px; width: auto; object-fit: contain; display: block;" />
             <div class="logo">Quick<span>Bill</span></div>
             <span
               class="tally-status-dot"
@@ -6816,31 +6812,6 @@ const PRECACHE = [
         style="flex-direction: column"
       >
         <div class="logs-toolbar">
-          <div
-            class="logs-search-row"
-            style="justify-content: space-between; align-items: center"
-          >
-            <span class="logs-count-label" style="padding: 0 4px"
-              ><span id="logsTotalCount">0</span> transactions</span
-            >
-            <button
-              class="logs-clear-data-btn"
-              onclick="confirmClearLogs()"
-              style="display: flex; align-items: center; gap: 5px"
-            >
-              <i
-                data-lucide="trash-2"
-                style="
-                  width: 13px;
-                  height: 13px;
-                  stroke: currentColor;
-                  stroke-width: 2px;
-                "
-              ></i>
-              Clear
-            </button>
-          </div>
-
           <div
             class="logs-search-row"
             style="justify-content: space-between; align-items: center"
@@ -8287,11 +8258,8 @@ node server.js</pre
           const stored = localStorage.getItem("qb_tax_brackets");
           if (stored) return JSON.parse(stored);
         } catch (e) {}
-        // Default brackets: Up to 1000 is 5%, above 1000 (null) is 12%
-        return [
-          { maxPrice: 1000, rate: 5 },
-          { maxPrice: null, rate: 12 },
-        ];
+        // Default brackets: Infinite (null) is 5%
+        return [{ maxPrice: null, rate: 5 }];
       }
 
       function getTaxRateForPrice(price) {
@@ -9099,6 +9067,12 @@ node server.js</pre
       }
 
       function onBarcodeDetected(code) {
+        // Prevent double-scanning
+        scanCooldown = true;
+        setTimeout(() => {
+          scanCooldown = false;
+        }, 1500);
+
         const clean = code.trim();
         const item = BARCODE_MAP[clean];
 
@@ -10354,21 +10328,6 @@ ${
       function dismissSuccessOverlay() {
         // Just hide the overlay. The current cart items will remain on the screen.
         document.getElementById("successOverlay").classList.remove("open");
-      }
-
-      // ── EXISTING: Wipes the cart and starts fresh ──
-      function closeSuccessOverlay() {
-        document.getElementById("successOverlay").classList.remove("open");
-
-        if (typeof clearAll === "function") clearAll();
-
-        localStorage.removeItem("qb_current_cart");
-        localStorage.removeItem("qb_active_customer");
-        localStorage.removeItem("qb_draft_bill");
-
-        setTimeout(() => {
-          window.location.reload();
-        }, 100);
       }
 
       function initSuccessOverlayQueue(queueArr) {
