@@ -8937,10 +8937,9 @@ node server.js</pre
         try {
           localStorage.removeItem("qb_sales_list");
         } catch (e) {}
-        billNum++;
-        try {
-          localStorage.setItem("qb_bill_num", billNum);
-        } catch (e) {}
+
+        // Bill number is now incremented during the save process,
+        // so we just update the UI here without adding +1 again.
         document.getElementById("billId").textContent =
           `BILL #${String(billNum).padStart(3, "0")}`;
         renderSales();
@@ -9978,10 +9977,18 @@ ${
       }
 
       function updateCoConfirmBtn() {
+        const btn = document.getElementById("coConfirmBtn");
+
         if (isBillPrepared) {
-          document.getElementById("coConfirmBtn").disabled = true;
+          btn.disabled = false;
+          btn.querySelector(".co-prepare-btn-text").textContent =
+            "Start New Bill";
           return;
         }
+
+        // Reset text back to normal if the cart is modified
+        btn.querySelector(".co-prepare-btn-text").textContent = "Prepare Bill";
+
         const total = salesList.reduce((s, i) => s + i.qty * i.price, 0);
         const cash = parseFloat(document.getElementById("coCash").value) || 0;
         const phonePe =
@@ -10176,9 +10183,15 @@ ${
       }
 
       document.getElementById("coConfirmBtn").addEventListener("click", () => {
-        // Disable the button immediately and lock it
+        // If already prepared, treat this as the "Start New Bill" button
+        if (isBillPrepared) {
+          closeSuccessOverlay();
+          return;
+        }
+
+        // Lock the bill and transform the button
         isBillPrepared = true;
-        document.getElementById("coConfirmBtn").disabled = true;
+        updateCoConfirmBtn();
 
         TallyStatus.check(); // Trigger 3: before bill preparation
         const employee = document.getElementById("coEmployee").value;
@@ -10328,6 +10341,15 @@ ${
         renderLogs();
 
         closeCheckout();
+
+        // Increment the bill number IMMEDIATELY upon saving.
+        // This ensures if the user clicks "X" and edits the cart, it becomes a NEW bill.
+        billNum++;
+        try {
+          localStorage.setItem("qb_bill_num", billNum);
+        } catch (e) {}
+        document.getElementById("billId").textContent =
+          `BILL #${String(billNum).padStart(3, "0")}`;
 
         // --- NEW: Trigger Success Overlay ---
         openSuccessOverlay(billId);
