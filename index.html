@@ -36,10 +36,10 @@
           background_color: "#f5f5f7",
           theme_color: "#f5f5f7",
           icons: [
-            { 
-              src: "image1-9.svg", 
-              sizes: "any", 
-              type: "image/svg+xml" 
+            {
+              src: "image1-9.svg",
+              sizes: "any",
+              type: "image/svg+xml",
             },
             {
               src: "image1-9.svg",
@@ -2626,107 +2626,143 @@ const PRECACHE = [
         color: var(--accent);
       }
 
-      /* ── SUMMARY ── */
+      /* ── SUMMARY (PREMIUM FLOATING PILL REDESIGN) ── */
       .summary {
-        background: var(--surface);
-        border-top: 1px solid var(--border);
-        padding: 16px 20px 20px;
+        background: var(--bg);
+        padding: 10px 16px 20px;
         flex-shrink: 0;
         cursor: pointer;
         touch-action: manipulation;
         -webkit-tap-highlight-color: transparent;
-        transition: background 0.15s;
+        position: relative;
+        z-index: 100;
       }
 
-      .summary:active {
-        background: rgba(245, 197, 24, 0.06);
+      .summary::before {
+        content: "";
+        position: absolute;
+        bottom: 100%;
+        left: 0;
+        right: 0;
+        height: 24px;
+        background: linear-gradient(to top, var(--bg), transparent);
+        pointer-events: none;
       }
 
       .summary.disabled-summary {
         cursor: default;
       }
 
-      .summary.disabled-summary .sum-total {
-        opacity: 0.4;
-        filter: grayscale(0.4);
-      }
-
-      .summary.disabled-summary:active {
-        background: var(--surface);
+      .summary.disabled-summary .summary-row {
+        opacity: 0.5;
+        filter: grayscale(0.8);
       }
 
       .summary-row {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 12px;
-        font-weight: 700;
-        gap: 10px;
+        background: var(--surface);
+        border: 1.5px solid var(--accent);
+        border-radius: 20px;
+        padding: 8px 8px 8px 20px;
+        box-shadow: 0 8px 20px rgba(196, 168, 0, 0.12);
+        transition:
+          transform 0.15s ease,
+          box-shadow 0.15s ease,
+          opacity 0.2s;
+        gap: 16px;
+      }
+
+      .dark .summary-row {
+        box-shadow: 0 8px 20px rgba(228, 211, 41, 0.08);
+        background: var(--card);
+      }
+
+      .summary:active:not(.disabled-summary) .summary-row {
+        transform: scale(0.97);
+        box-shadow: 0 4px 12px rgba(196, 168, 0, 0.08);
+      }
+
+      .sum-divider {
+        width: 1px;
+        height: 24px;
+        background: var(--border);
+        flex-shrink: 0;
       }
 
       .sum-pill {
-        flex: 1;
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        padding: 10px 14px;
         display: flex;
         flex-direction: column;
         gap: 2px;
+        flex: 1; /* This gives Items and Qty 25% of the space each */
+        min-width: 0;
+        align-items: center;
       }
 
       .sum-pill-label {
         font-size: 10px;
+        font-weight: 800;
         color: var(--muted);
         text-transform: uppercase;
-        letter-spacing: 0.8px;
+        letter-spacing: 0.5px;
       }
 
       .sum-pill-val {
         font-family: var(--mono);
-        font-size: 18px;
-        font-weight: 500;
+        font-size: 17px;
+        font-weight: 700;
+        color: var(--text);
+        white-space: nowrap;
       }
 
       .sum-total {
-        flex: 2;
         background: var(--accent);
+        border-radius: 14px;
+        padding: 10px 4px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        flex: 2; /* This gives the Checkout button 50% of the space */
+      }
 
-        border-radius: 12px;
-        padding: 10px 14px;
+      .sum-total-text {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
       }
 
       .sum-total .sum-pill-label {
-        color: rgba(0, 0, 0, 0.55);
+        color: rgba(0, 0, 0, 0.6);
+        font-size: 9px;
       }
 
       .sum-total .sum-pill-val {
         color: #000;
-        font-size: 22px;
-        font-weight: 700;
+        font-size: 17px;
+        font-weight: 800;
         display: flex;
         align-items: center;
         gap: 6px;
       }
 
       .sum-total-arrow {
-        font-size: 22px;
+        font-size: 18px;
         font-weight: 900;
         color: #000;
         line-height: 1;
-        letter-spacing: -1px;
       }
 
       .sum-arrow-pill {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 30px;
-        height: 30px;
+        width: 28px;
+        height: 28px;
         border-radius: 8px;
-        background: rgba(0, 0, 0, 0.2);
+        background: rgba(0, 0, 0, 0.15);
         flex-shrink: 0;
-        vertical-align: middle;
       }
 
       .action-row {
@@ -3205,7 +3241,7 @@ const PRECACHE = [
         border-radius: 14px;
         padding: 11px 13px;
         display: grid;
-        grid-template-columns: 1fr 36px 70px 74px;
+        grid-template-columns: 1fr 25px 70px 74px;
         gap: 6px;
         align-items: center;
         position: relative;
@@ -3251,7 +3287,7 @@ const PRECACHE = [
 
       .co-item-num {
         font-family: var(--mono);
-        font-size: 11px;
+        font-size: 10px;
         font-weight: 800;
         color: #000;
         background: var(--accent);
@@ -3267,9 +3303,8 @@ const PRECACHE = [
       }
 
       .co-item-text {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        white-space: normal;
+        word-break: break-word;
         display: flex;
         flex-direction: column;
         gap: 2px;
@@ -3287,7 +3322,7 @@ const PRECACHE = [
         font-family: var(--mono);
         font-size: 13px;
         font-weight: 700;
-        color: var(--muted);
+        color: var(--text);
         text-align: right;
       }
 
@@ -6060,7 +6095,7 @@ const PRECACHE = [
       .co-items-header {
         display: grid;
         /* Exactly matches the grid of .checkout-card to ensure perfect alignment */
-        grid-template-columns: 1fr 36px 70px 74px;
+        grid-template-columns: 1fr 25px 70px 74px;
         gap: 6px;
         padding: 4px 13px 4px;
         font-size: 9.5px;
@@ -6281,13 +6316,17 @@ const PRECACHE = [
             <span class="sum-pill-label">Items</span>
             <span class="sum-pill-val" id="totalItems">0</span>
           </div>
+          <div class="sum-divider"></div>
           <div class="sum-pill">
             <span class="sum-pill-label">Qty</span>
             <span class="sum-pill-val" id="totalQty">0</span>
           </div>
+          <div class="sum-divider"></div>
           <div class="sum-pill sum-total">
-            <span class="sum-pill-label">Total Price</span>
-            <span class="sum-pill-val" id="totalPrice">₹0.00</span>
+            <div class="sum-total-text">
+              <span class="sum-pill-label">Checkout</span>
+              <span class="sum-pill-val" id="totalPrice">₹0.00</span>
+            </div>
           </div>
         </div>
       </div>
@@ -7935,9 +7974,23 @@ node server.js</pre
     <div class="checkout-overlay" id="queueOverlay" style="z-index: 5500">
       <div class="checkout-header">
         <button class="checkout-back" onclick="closeQueuePage()">‹</button>
-        <div class="checkout-title">
+        <div class="checkout-title" style="flex: 1">
           Transaction <span class="title-accent">Queue</span>
         </div>
+        <button
+          onclick="clearQueue()"
+          style="
+            background: none;
+            border: none;
+            color: var(--danger);
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            touch-action: manipulation;
+          "
+        >
+          🗑️ Clear All
+        </button>
       </div>
       <div class="checkout-scroll-body" id="queueList"></div>
       <div class="checkout-footer">
@@ -10216,7 +10269,7 @@ ${
           phonePePaid: phonePe.toFixed(2),
           amountTendered: cashGiven.toFixed(2),
           changeReturned: Math.max(0, cashGiven - cash).toFixed(2),
-          customerPhone: employee || "random customer",
+          customerPhone: employee || "Unknown Customer",
           totalPriceExcludingTax: totalPriceExcludingTax.toFixed(2),
           totalTaxAmount: totalTaxAmount.toFixed(2),
           halfTotalTaxAmount: halfTotalTaxAmount.toFixed(2),
@@ -11138,6 +11191,17 @@ ${
         document.getElementById("queueOverlay").classList.remove("open");
       };
 
+      window.clearQueue = function () {
+        if (confirm("Clear all failed transactions from the queue?")) {
+          let history = JSON.parse(
+            localStorage.getItem("qb_xmlreq_history") || "[]",
+          );
+          history = history.filter((h) => h.ok); // Keeps only the successful ones in history
+          localStorage.setItem("qb_xmlreq_history", JSON.stringify(history));
+          renderQueue();
+        }
+      };
+
       function renderQueue() {
         const history = JSON.parse(
           localStorage.getItem("qb_xmlreq_history") || "[]",
@@ -11152,13 +11216,34 @@ ${
         }
 
         container.innerHTML = failed
-          .map(
-            (f, i) => `
+          .map((f, i) => {
+            // Extract Bill ID safely using regex from the stored XML request payload
+            // Use saved Bill ID, or fallback to common XML tags, or fallback to the exact timestamp it failed
+            const xmlMatch = f.request
+              ? f.request.match(
+                  /<(?:VCHNO|VOUCHERNUMBER|REFERENCE|BILLID|ID)>([^<]+)<\//i,
+                )
+              : null;
+            const billIdMatch = f.request
+              ? f.request.match(/BILL #\d+/i)
+              : null;
+            const displayBillId =
+              f.billId ||
+              (xmlMatch
+                ? "Bill " + xmlMatch[1]
+                : billIdMatch
+                  ? billIdMatch[0]
+                  : f.tsDisplay || "Unknown");
+
+            return `
           <div class="bh-card" id="q-item-${i}" style="margin-bottom:10px; background:var(--surface);">
             <div class="bh-card-header" onclick="toggleQueuePanel(${i})">
               <div class="bh-card-left">
-                <span style="font-size:12px; font-weight:700;">${f.name}</span>
-                <span style="font-size:10px; color:var(--danger); display:block;">${f.status}</span>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span style="font-size:12px; font-weight:700;">${f.name}</span>
+                  <span style="font-family:var(--mono);font-size:10px;font-weight:700;color:var(--accent);background:rgba(245,197,24,0.12);padding:2px 6px;border-radius:12px;">${displayBillId}</span>
+                </div>
+                <span style="font-size:10px; color:var(--danger); display:block; margin-top:4px;">${f.status}</span>
               </div>
               <button class="bh-acc-btn" onclick="removeQueueItem(${i}); event.stopPropagation();">
                 <i data-lucide="trash-2" style="width:14px;height:14px;"></i>
@@ -11171,8 +11256,8 @@ ${
               </button>
             </div>
           </div>
-        `,
-          )
+        `;
+          })
           .join("");
         lucide.createIcons();
       }
@@ -11825,6 +11910,9 @@ ${
               response: responseText,
               status: statusText,
               ok: isOk,
+              billId:
+                document.getElementById("checkoutBillId").textContent ||
+                "Unknown",
             };
             pushHistory(entry);
             if (currentTask.isAuto) {
