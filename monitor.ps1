@@ -1,5 +1,5 @@
 $serverRunning = $false
-$folderPath = "D:\my-quickbill - Copy (2)" 
+$folderPath = "D:\QuickBillPOS" 
 
 while ($true) {
     # Check if TallyPrime is running
