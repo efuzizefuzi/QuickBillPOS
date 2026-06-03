@@ -66,7 +66,7 @@
     // ── QuickBill Service Worker ──────────────────────────────────────────
     // Cache name — bump this string whenever you deploy a new version of the
     // HTML so all phones pick up the update on next load.
-    const CACHE = 'quickbill-v6';
+    const CACHE = 'quickbill-v7';
 
     // These are the URLs that must be available offline.
     // The app shell (HTML + local JS) is served from the same origin,
@@ -9891,39 +9891,43 @@ ${
         document.getElementById("coSumAmount").textContent =
           `₹${total.toFixed(2)}`;
 
-        // ── CALCULATE TAXES FOR UI ──
-        const taxBuckets = {}; // Dynamic buckets for unlimited tiers
-        let totalPriceExcludingTax = 0;
-
-        salesList.forEach((item) => {
-          const unitPrice = item.price;
-          const lineTotal = unitPrice * item.qty;
-          const taxRate = getTaxRateForPrice(unitPrice);
-
-          const lineTotalExcludingTax =
-            Math.round((lineTotal / (1 + taxRate / 100)) * 100) / 100;
-
-          totalPriceExcludingTax += lineTotalExcludingTax;
-          taxBuckets[taxRate] =
-            (taxBuckets[taxRate] || 0) + lineTotalExcludingTax;
-        });
-
-        let halfTotalTaxAmount = 0;
+        // ── CALCULATE TAXES FOR UI (TALLY 5-STAGE PIPELINE) ──
+        let totalExcl = 0;
+        let totalCgst = 0;
+        let totalSgst = 0;
         let appliedRates = [];
 
-        for (let rate in taxBuckets) {
-          const baseAmount = taxBuckets[rate];
-          const rateNum = parseFloat(rate);
-          appliedRates.push(rateNum);
+        salesList.forEach((item) => {
+          const unitPrice = item.price; // MRP
+          const qty = item.qty;
+          const taxRate = getTaxRateForPrice(unitPrice);
+          const divisor = 1 + taxRate / 100;
 
-          const halfTax = Math.round(baseAmount * (rateNum / 200) * 100) / 100;
-          halfTotalTaxAmount += halfTax;
-        }
+          if (!appliedRates.includes(taxRate)) appliedRates.push(taxRate);
 
-        const calculatedTotal =
-          Math.round((totalPriceExcludingTax + halfTotalTaxAmount * 2) * 100) /
-          100;
-        const roundOff = Math.round((total - calculatedTotal) * 100) / 100;
+          // Stage 1: Unit Price (Rounded to 2dp)
+          const unitExcl = Math.round((unitPrice / divisor) * 100) / 100;
+
+          // Stage 2: Line Amount (Exact, no rounding)
+          const lineExcl = unitExcl * qty;
+
+          // Stage 3: Per-Line GST (Rounded to 2dp independently)
+          const halfRate = taxRate / 2;
+          const lineCgst = Math.round(lineExcl * (halfRate / 100) * 100) / 100;
+          const lineSgst = Math.round(lineExcl * (halfRate / 100) * 100) / 100;
+
+          totalExcl += lineExcl;
+          totalCgst += lineCgst;
+          totalSgst += lineSgst;
+        });
+
+        // Stage 4: Round Off
+        const totalTax = totalCgst + totalSgst;
+        const subTotal = totalExcl + totalTax;
+        const grandTotal = Math.round(subTotal);
+        const roundOff = Math.round((grandTotal - subTotal) * 100) / 100;
+
+        let halfTotalTaxAmount = totalCgst; // For UI binding below
 
         // Determinee the correct percentage labels
         let taxLabel = "";
@@ -10210,65 +10214,63 @@ ${
         // ── Build fresh bill JSON data in memory ──
 
         // First pass: Calculate item-level metrics and accumulate invoice totals
-        // ── Build fresh bill JSON data in memory ──
+        // ── TALLY POS PIPELINE (JSON GENERATION) ──
         const d = new Date();
         const dateStr =
           d.getFullYear().toString() +
           String(d.getMonth() + 1).padStart(2, "0") +
           String(d.getDate()).padStart(2, "0");
 
-        let totalPriceExcludingTax = 0;
-        let totalTaxAmount = 0;
-        const taxBuckets = {};
+        let totalExcl = 0;
+        let totalCgst = 0;
+        let totalSgst = 0;
 
         const processedItems = salesList.map((item) => {
           const unitPrice = item.price;
-          const lineTotal = unitPrice * item.qty;
+          const qty = item.qty;
           const taxRate = getTaxRateForPrice(unitPrice);
+          const divisor = 1 + taxRate / 100;
 
-          const lineTotalExcludingTax =
-            Math.round((lineTotal / (1 + taxRate / 100)) * 100) / 100;
-          const lineTaxAmount =
-            Math.round((lineTotal - lineTotalExcludingTax) * 100) / 100;
+          // Stage 1: Unit price (tax-exclusive), rounded
+          const unitExcl = Math.round((unitPrice / divisor) * 100) / 100;
 
-          const unitPriceExcludingTax = +(
-            lineTotalExcludingTax / item.qty
-          ).toFixed(2);
-          const unitTaxAmount = +(lineTaxAmount / item.qty).toFixed(2);
+          // Stage 2: Line amount (exact, no round)
+          const lineExcl = unitExcl * qty;
 
-          totalTaxAmount += lineTaxAmount;
-          totalPriceExcludingTax += lineTotalExcludingTax;
+          // Stage 3: Per-line GST, rounded independently
+          const halfRate = taxRate / 2;
+          const lineCgst = Math.round(lineExcl * (halfRate / 100) * 100) / 100;
+          const lineSgst = Math.round(lineExcl * (halfRate / 100) * 100) / 100;
+          const lineTax = Math.round((lineCgst + lineSgst) * 100) / 100;
+          const lineTotalIncl = Math.round((lineExcl + lineTax) * 100) / 100;
 
-          taxBuckets[taxRate] =
-            (taxBuckets[taxRate] || 0) + lineTotalExcludingTax;
+          // Add to totals
+          totalExcl += lineExcl;
+          totalCgst += lineCgst;
+          totalSgst += lineSgst;
+
+          // Calculate derived display fields to maintain JSON structure
+          const unitTaxAmount = Math.round((unitPrice - unitExcl) * 100) / 100;
 
           return {
             itemName: item.name,
-            quantity: item.qty,
+            quantity: qty,
             unitPrice: unitPrice,
             unitTaxAmount: unitTaxAmount,
-            unitPriceExcludingTax: unitPriceExcludingTax,
-            lineTotalExcludingTax: lineTotalExcludingTax,
-            lineTaxAmount: lineTaxAmount,
-            lineTotal: lineTotal,
+            unitPriceExcludingTax: unitExcl,
+            lineTotalExcludingTax: lineExcl,
+            lineTaxAmount: lineTax,
+            lineTotal: lineTotalIncl,
           };
         });
 
-        let halfTotalTaxAmount = 0;
-        for (let rate in taxBuckets) {
-          const baseAmount = taxBuckets[rate];
-          const rateNum = parseFloat(rate);
-          const halfTax = Math.round(baseAmount * (rateNum / 200) * 100) / 100;
-          halfTotalTaxAmount += halfTax;
-        }
+        // Stage 4: Round Off (Grand total calculation)
+        const totalTaxAmount = Math.round((totalCgst + totalSgst) * 100) / 100;
+        const subTotal = totalExcl + totalTaxAmount;
+        const grandTotal = Math.round(subTotal);
+        const roundOff = Math.round((grandTotal - subTotal) * 100) / 100;
 
-        const calculatedTotal =
-          Math.round((totalPriceExcludingTax + halfTotalTaxAmount * 2) * 100) /
-          100;
-        let roundOff = Math.round((total - calculatedTotal) * 100) / 100;
-
-        // ... (Proceed to your second pass mapping to lastBillXmlData as normal)
-        // Second pass: Map to the final JSON structure preserving the array format
+        // Map to the final JSON structure preserving the array format
         lastBillXmlData = processedItems.map((item) => ({
           date: dateStr,
           itemName: item.itemName,
@@ -10279,17 +10281,17 @@ ${
           lineTotalExcludingTax: item.lineTotalExcludingTax.toFixed(2),
           lineTaxAmount: item.lineTaxAmount.toFixed(2),
           lineTotal: item.lineTotal.toFixed(2),
-          grandTotal: total.toFixed(2),
+          grandTotal: grandTotal.toFixed(2),
           cashPaid: cash.toFixed(2),
           phonePePaid: phonePe.toFixed(2),
           amountTendered: cashGiven.toFixed(2),
           changeReturned: Math.max(0, cashGiven - cash).toFixed(2),
           customerPhone: employee || "Unknown Customer",
-          totalPriceExcludingTax: totalPriceExcludingTax.toFixed(2),
+          totalPriceExcludingTax: totalExcl.toFixed(2),
           totalTaxAmount: totalTaxAmount.toFixed(2),
-          halfTotalTaxAmount: halfTotalTaxAmount.toFixed(2),
+          halfTotalTaxAmount: totalCgst.toFixed(2), // CGST/SGST total
           roundOff: roundOff.toFixed(2),
-          roundOffValue: roundOff > 0 ? "Yes" : roundOff < 0 ? "No" : "No",
+          roundOffValue: roundOff !== 0 ? "Yes" : "No", // Only 'Yes' if not zero
         }));
 
         updateJsonDisplay();
