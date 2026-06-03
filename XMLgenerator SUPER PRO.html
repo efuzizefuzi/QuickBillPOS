@@ -1,0 +1,3525 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>XML Automation Pro</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      :root {
+        --bg: #f0f2f5;
+        --bg2: #ffffff;
+        --bg3: #f5f7fa;
+        --bg4: #eaecef;
+        --bg5: #e0e3e8;
+        --border: rgba(0, 0, 0, 0.08);
+        --border2: rgba(0, 0, 0, 0.14);
+        --border3: rgba(0, 0, 0, 0.22);
+        --text: #1a1a1a;
+        --text2: #555555;
+        --text3: #999999;
+        --accent: #2563eb;
+        --accent2: #1d4ed8;
+        --accent-g: rgba(37, 99, 235, 0.06);
+        --accent-b: rgba(37, 99, 235, 0.18);
+        --amber: #b45309;
+        --amber-g: rgba(180, 83, 9, 0.07);
+        --green: #15803d;
+        --green-l: rgba(21, 128, 61, 0.08);
+        --red: #dc2626;
+        --red-g: rgba(220, 38, 38, 0.07);
+        --purple: #6d28d9;
+        --radius: 8px;
+        --radius-lg: 12px;
+        --shadow-sm:
+          0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+        --shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
+      }
+
+      html {
+        font-size: 16px;
+      }
+      body {
+        font-family: "Plus Jakarta Sans", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+      }
+
+      ::-webkit-scrollbar {
+        width: 5px;
+        height: 5px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--border2);
+        border-radius: 3px;
+      }
+
+      /* ── HEADER ─── */
+      header {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 16px 28px;
+        border-bottom: 1px solid var(--border);
+        background: var(--bg2);
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        box-shadow: var(--shadow-sm);
+      }
+      .logo {
+        width: 36px;
+        height: 36px;
+        border-radius: 9px;
+        background: var(--accent);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+      }
+      .logo svg {
+        width: 18px;
+        height: 18px;
+      }
+      header h1 {
+        font-size: 16px;
+        font-weight: 700;
+        letter-spacing: -0.3px;
+        color: var(--text);
+      }
+      header h1 span {
+        color: var(--accent);
+      }
+      header p {
+        font-size: 11.5px;
+        color: var(--text2);
+        margin-top: 1px;
+      }
+      .header-right {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      /* ── JSON STATUS PILL ─── */
+      .json-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+        border: 1px solid var(--border2);
+        background: var(--bg3);
+        color: var(--text2);
+        transition: all 0.2s;
+        white-space: nowrap;
+      }
+      .json-status.loaded {
+        background: rgba(21, 128, 61, 0.08);
+        border-color: rgba(21, 128, 61, 0.25);
+        color: var(--green);
+      }
+      .json-status .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--border3);
+        transition: background 0.2s;
+      }
+      .json-status.loaded .dot {
+        background: var(--green);
+      }
+
+      /* ── MAIN LAYOUT ─── */
+      main {
+        max-width: 1020px;
+        margin: 0 auto;
+        padding: 24px 24px 60px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+
+      /* ── CARD ─── */
+      .card {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+      }
+      .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 16px;
+        border-bottom: 1px solid var(--border);
+        background: var(--bg3);
+      }
+      .card-title {
+        font-size: 10.5px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.9px;
+        color: var(--text3);
+      }
+      .card-title.accent {
+        color: var(--accent);
+      }
+      .card-title.amber {
+        color: var(--amber);
+      }
+      .card-title.green {
+        color: var(--green);
+      }
+      .card-body {
+        padding: 16px;
+      }
+
+      /* ── BUTTONS ─── */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 13px;
+        border-radius: 7px;
+        font-size: 11.5px;
+        font-weight: 600;
+        font-family: "Plus Jakarta Sans", sans-serif;
+        cursor: pointer;
+        transition: all 0.15s;
+        border: 1px solid var(--border2);
+        background: var(--bg2);
+        color: var(--text2);
+        white-space: nowrap;
+        box-shadow: var(--shadow-sm);
+      }
+      .btn:hover {
+        background: var(--bg3);
+        color: var(--text);
+        border-color: var(--border3);
+      }
+      .btn-accent {
+        background: var(--accent);
+        color: #fff;
+        border-color: var(--accent);
+        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
+      }
+      .btn-accent:hover {
+        background: var(--accent2);
+        border-color: var(--accent2);
+        color: #fff;
+        box-shadow: 0 3px 10px rgba(37, 99, 235, 0.3);
+      }
+      .btn-ghost-accent {
+        background: var(--accent-g);
+        color: var(--accent);
+        border-color: var(--accent-b);
+        box-shadow: none;
+      }
+      .btn-ghost-accent:hover {
+        background: var(--accent);
+        color: #fff;
+        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.2);
+      }
+      .btn-ghost-amber {
+        background: var(--amber-g);
+        color: var(--amber);
+        border-color: rgba(180, 83, 9, 0.22);
+        box-shadow: none;
+      }
+      .btn-ghost-amber:hover {
+        background: var(--amber);
+        color: #fff;
+      }
+      .btn-ghost-green {
+        background: var(--green-l);
+        color: var(--green);
+        border-color: rgba(21, 128, 61, 0.22);
+        box-shadow: none;
+      }
+      .btn-ghost-green:hover {
+        background: var(--green);
+        color: #fff;
+      }
+      .btn-ghost-red {
+        background: var(--red-g);
+        color: var(--red);
+        border-color: rgba(220, 38, 38, 0.22);
+        box-shadow: none;
+      }
+      .btn-ghost-red:hover {
+        background: var(--red);
+        color: #fff;
+      }
+      .btn-ghost-purple {
+        background: rgba(109, 40, 217, 0.07);
+        color: var(--purple);
+        border-color: rgba(109, 40, 217, 0.2);
+        box-shadow: none;
+      }
+      .btn-ghost-purple:hover {
+        background: var(--purple);
+        color: #fff;
+      }
+
+      .btn-generate {
+        width: 100%;
+        padding: 14px;
+        background: var(--accent);
+        color: #fff;
+        font-size: 15px;
+        font-weight: 700;
+        font-family: "Plus Jakarta Sans", sans-serif;
+        border-radius: var(--radius-lg);
+        letter-spacing: 0.01em;
+        cursor: pointer;
+        border: none;
+        box-shadow:
+          0 4px 20px rgba(37, 99, 235, 0.25),
+          0 1px 3px rgba(37, 99, 235, 0.15);
+        transition: all 0.2s;
+      }
+      .btn-generate:hover {
+        transform: translateY(-1px);
+        box-shadow:
+          0 8px 28px rgba(37, 99, 235, 0.35),
+          0 2px 6px rgba(37, 99, 235, 0.2);
+        background: var(--accent2);
+      }
+      .btn-generate:active {
+        transform: none;
+      }
+      .btn-generate:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+
+      /* ── INPUTS ─── */
+      input[type="text"],
+      textarea,
+      select {
+        border: 1px solid var(--border2);
+        border-radius: 7px;
+        padding: 7px 11px;
+        font-size: 12px;
+        outline: none;
+        width: 100%;
+        font-family: "Plus Jakarta Sans", sans-serif;
+        transition:
+          border-color 0.15s,
+          box-shadow 0.15s;
+        background: var(--bg2);
+        color: var(--text);
+      }
+      input[type="text"]:focus,
+      textarea:focus,
+      select:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+      }
+      input::placeholder,
+      textarea::placeholder {
+        color: var(--text3);
+      }
+      input.json-key {
+        background: rgba(21, 128, 61, 0.05);
+        border-color: rgba(21, 128, 61, 0.25);
+        color: var(--green);
+      }
+      input.json-key:focus {
+        border-color: var(--green);
+        box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.1);
+      }
+      input.json-key::placeholder {
+        color: rgba(21, 128, 61, 0.4);
+      }
+
+      /* ── BADGES ─── */
+      .badge {
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 0.07em;
+        padding: 2px 7px;
+        border-radius: 5px;
+        text-transform: uppercase;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+      .badge-tag {
+        background: rgba(37, 99, 235, 0.1);
+        color: var(--accent);
+        border: 1px solid rgba(37, 99, 235, 0.2);
+      }
+      .badge-group {
+        background: rgba(109, 40, 217, 0.08);
+        color: #6d28d9;
+        border: 1px solid rgba(109, 40, 217, 0.18);
+      }
+
+      /* ── TAG BLOCK ─── */
+      .tag-block {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-left: 3px solid var(--border2);
+        border-radius: var(--radius);
+        padding: 11px 13px;
+        transition:
+          border-color 0.2s,
+          box-shadow 0.2s;
+        margin-bottom: 6px;
+        box-shadow: var(--shadow-sm);
+      }
+      .tag-block:hover {
+        border-left-color: var(--border3);
+        box-shadow: var(--shadow);
+      }
+      .tag-block.has-attrs {
+        border-left-color: var(--accent);
+      }
+      .tag-block.is-group {
+        border-left-color: #6d28d9;
+      }
+      .tag-block.dragging {
+        opacity: 0.4;
+        box-shadow: none;
+      }
+
+      /* drag-over line indicators */
+      .tag-block.drop-before {
+        border-top: 3px solid var(--accent) !important;
+      }
+      .tag-block.drop-after {
+        border-bottom: 3px solid var(--accent) !important;
+      }
+
+      /* ── REMOVE BTN ─── */
+      .remove-btn {
+        width: 26px;
+        height: 26px;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--red-g);
+        color: var(--red);
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        border: 1px solid rgba(220, 38, 38, 0.2);
+        transition: all 0.15s;
+        flex-shrink: 0;
+      }
+      .remove-btn:hover {
+        background: var(--red);
+        color: #fff;
+      }
+
+      /* ── TOGGLE ATTRS BTN ─── */
+      .toggle-attrs-btn {
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--accent);
+        cursor: pointer;
+        padding: 3px 9px;
+        border-radius: 5px;
+        border: 1px solid var(--accent-b);
+        background: var(--accent-g);
+        white-space: nowrap;
+        font-family: "Plus Jakarta Sans", sans-serif;
+        transition: all 0.15s;
+      }
+      .toggle-attrs-btn:hover,
+      .toggle-attrs-btn.active {
+        background: var(--accent);
+        color: #fff;
+        border-color: var(--accent);
+      }
+
+      /* ── ATTRS PANEL ─── */
+      .attrs-panel {
+        display: none;
+      }
+      .attrs-panel.open {
+        display: block;
+      }
+      .attrs-panel-inner {
+        margin-top: 10px;
+        padding-top: 10px;
+        border-top: 1px solid var(--border);
+      }
+
+      /* ── ATTR GRID ─── */
+      .attr-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1.2fr auto;
+        gap: 6px;
+        align-items: center;
+        margin-bottom: 6px;
+      }
+      @media (max-width: 640px) {
+        .attr-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* ── CHILDREN AREA ─── */
+      .children-area {
+        margin-left: 16px;
+        padding-left: 14px;
+        border-left: 2px dashed var(--border2);
+        margin-top: 12px;
+      }
+
+      /* ── FLEX UTILS ─── */
+      .flex {
+        display: flex;
+      }
+      .flex-wrap {
+        flex-wrap: wrap;
+      }
+      .items-center {
+        align-items: center;
+      }
+      .gap-2 {
+        gap: 8px;
+      }
+      .gap-3 {
+        gap: 12px;
+      }
+      .mb-2 {
+        margin-bottom: 8px;
+      }
+      .mb-3 {
+        margin-bottom: 12px;
+      }
+      .mt-2 {
+        margin-top: 8px;
+      }
+      .mt-3 {
+        margin-top: 12px;
+      }
+
+      /* ── SKIP CHECKBOX ─── */
+      .skip-label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 3px;
+        font-size: 9px;
+        font-weight: 700;
+        color: var(--text3);
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        flex-shrink: 0;
+      }
+      .skip-label input[type="checkbox"] {
+        width: 14px;
+        height: 14px;
+        accent-color: var(--accent);
+        cursor: pointer;
+      }
+
+
+      /* ── OUTPUT ─── */
+      pre#output {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        color: #1d4ed8;
+        padding: 22px;
+        border-radius: var(--radius-lg);
+        overflow-x: auto;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 12px;
+        line-height: 1.8;
+        min-height: 120px;
+      }
+      pre#output.placeholder-text {
+        color: var(--text3);
+        font-style: italic;
+      }
+
+      /* ── PRESETS LIST ─── */
+      .preset-chip {
+        display: inline-flex;
+        align-items: center;
+        background: var(--bg3);
+        border: 1px solid var(--border2);
+        border-radius: 7px;
+        overflow: hidden;
+      }
+      .preset-chip button {
+        padding: 4px 11px;
+        font-size: 11.5px;
+        font-weight: 500;
+        font-family: "Plus Jakarta Sans", sans-serif;
+        border: none;
+        background: none;
+        cursor: pointer;
+        color: var(--text2);
+        transition: color 0.15s;
+      }
+      .preset-chip button:hover {
+        color: var(--text);
+      }
+      .preset-chip .del {
+        padding: 4px 9px;
+        color: var(--red);
+        border-left: 1px solid var(--border);
+        font-size: 14px;
+      }
+      .preset-chip .del:hover {
+        background: var(--red-g);
+      }
+
+      /* ── WRAPPER HINT ─── */
+      .hint-code {
+        background: var(--accent-g);
+        color: var(--accent);
+        padding: 1px 6px;
+        border-radius: 4px;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 11.5px;
+        border: 1px solid var(--accent-b);
+      }
+
+      /* ── OUTPUT ACTIONS ─── */
+      .output-wrap {
+        position: relative;
+      }
+      .out-actions {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        display: flex;
+        gap: 6px;
+        opacity: 0;
+        transition: opacity 0.2s;
+      }
+      .output-wrap:hover .out-actions {
+        opacity: 1;
+      }
+
+      /* ── JSON DROP ZONE ─── */
+      .json-drop-zone {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        border: 2px dashed var(--border2);
+        border-radius: var(--radius);
+        padding: 10px 14px;
+        cursor: pointer;
+        transition: all 0.2s;
+        background: var(--bg3);
+        position: relative;
+        min-height: 50px;
+      }
+      .json-drop-zone:hover {
+        border-color: var(--accent);
+        background: var(--accent-g);
+      }
+      .json-drop-zone.drag-over {
+        border-color: var(--accent);
+        background: rgba(37, 99, 235, 0.08);
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+      }
+      .json-drop-zone.has-file {
+        border-style: solid;
+        border-color: rgba(21, 128, 61, 0.4);
+        background: rgba(21, 128, 61, 0.04);
+      }
+      .json-drop-zone.has-file:hover {
+        border-color: rgba(21, 128, 61, 0.6);
+        background: rgba(21, 128, 61, 0.07);
+      }
+      .json-drop-zone input[type="file"] {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        cursor: pointer;
+        width: 100%;
+        height: 100%;
+      }
+      .drop-icon {
+        width: 32px;
+        height: 32px;
+        flex-shrink: 0;
+        background: var(--bg4);
+        border: 1px solid var(--border2);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+      }
+      .json-drop-zone:hover .drop-icon,
+      .json-drop-zone.drag-over .drop-icon {
+        background: var(--accent-g);
+        border-color: var(--accent-b);
+      }
+      .json-drop-zone.has-file .drop-icon {
+        background: var(--green-l);
+        border-color: rgba(21, 128, 61, 0.25);
+      }
+      .drop-icon svg {
+        width: 16px;
+        height: 16px;
+      }
+      .drop-text {
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+        flex: 1;
+        min-width: 0;
+      }
+      .drop-title {
+        font-size: 12.5px;
+        font-weight: 600;
+        color: var(--text);
+      }
+      .drop-subtitle {
+        font-size: 11px;
+        color: var(--text2);
+      }
+      .drop-subtitle b {
+        color: var(--accent);
+        font-weight: 600;
+      }
+      .json-drop-zone.has-file .drop-title {
+        color: var(--green);
+      }
+
+      /* file meta — now inline in card-header, hidden until file loaded */
+      .json-file-meta {
+        display: none;
+        align-items: center;
+        gap: 6px;
+        overflow: hidden;
+      }
+      .json-file-meta.visible {
+        display: flex;
+      }
+      .json-file-meta .fname {
+        font-family: "IBM Plex Mono", monospace;
+        font-weight: 500;
+        font-size: 11px;
+        color: var(--text);
+        max-width: 160px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .json-file-meta .frows {
+        font-size: 11px;
+        color: var(--text2);
+        white-space: nowrap;
+      }
+      .json-clear-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+        color: var(--text3);
+        padding: 0 2px;
+        transition: color 0.15s;
+        flex-shrink: 0;
+      }
+      .json-clear-btn:hover {
+        color: var(--red);
+      }
+
+      /* ── ROOT KEY PICKER ─── */
+      .root-key-picker {
+        display: none;
+        margin-top: 12px;
+        padding: 12px 14px;
+        background: rgba(180, 83, 9, 0.05);
+        border: 1px solid rgba(180, 83, 9, 0.22);
+        border-radius: 8px;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .root-key-picker.visible {
+        display: flex;
+      }
+      .root-key-picker label {
+        font-size: 11.5px;
+        font-weight: 600;
+        color: var(--amber);
+        white-space: nowrap;
+      }
+      .root-key-picker select {
+        max-width: 260px;
+        flex: 1;
+        min-width: 140px;
+        color: var(--text);
+      }
+
+      /* ── REPEAT GROUP ─── */
+      .repeat-label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 3px;
+        font-size: 9px;
+        font-weight: 700;
+        color: var(--purple);
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+        flex-shrink: 0;
+      }
+      .repeat-label input[type="checkbox"] {
+        width: 14px;
+        height: 14px;
+        accent-color: var(--purple);
+        cursor: pointer;
+      }
+      .repeat-key-wrap {
+        display: none;
+        align-items: center;
+        gap: 6px;
+        margin-top: 8px;
+        padding: 8px 10px;
+        background: rgba(109, 40, 217, 0.05);
+        border: 1px solid rgba(109, 40, 217, 0.18);
+        border-radius: 6px;
+      }
+      .repeat-key-wrap.visible {
+        display: flex;
+      }
+      .repeat-key-wrap label {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--purple);
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+      .repeat-key-wrap input {
+        max-width: 220px;
+        flex: 1;
+        background: rgba(109, 40, 217, 0.04);
+        border-color: rgba(109, 40, 217, 0.25);
+        color: var(--purple);
+      }
+      .repeat-key-wrap input::placeholder {
+        color: rgba(109, 40, 217, 0.35);
+      }
+      .repeat-key-wrap input:focus {
+        border-color: var(--purple);
+        box-shadow: 0 0 0 3px rgba(109, 40, 217, 0.1);
+      }
+      .tag-block.is-repeating {
+        border-left-color: var(--purple) !important;
+      }
+
+      /* ── PREFIX / SUFFIX PANEL ─── */
+      .presuf-btn {
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--amber);
+        cursor: pointer;
+        padding: 3px 9px;
+        border-radius: 5px;
+        border: 1px solid rgba(180,83,9,0.22);
+        background: var(--amber-g);
+        white-space: nowrap;
+        font-family: "Plus Jakarta Sans", sans-serif;
+        transition: all 0.15s;
+      }
+      .presuf-btn:hover,
+      .presuf-btn.active {
+        background: var(--amber);
+        color: #fff;
+        border-color: var(--amber);
+      }
+      .presuf-wrap {
+        display: none;
+        align-items: center;
+        gap: 6px;
+        margin-top: 8px;
+        padding: 8px 10px;
+        background: var(--amber-g);
+        border: 1px solid rgba(180,83,9,0.18);
+        border-radius: 6px;
+        flex-wrap: wrap;
+      }
+      .presuf-wrap.open { display: flex; }
+      .presuf-wrap label {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--amber);
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+      .presuf-wrap input {
+        max-width: 180px;
+        flex: 1;
+        background: rgba(180,83,9,0.04);
+        border-color: rgba(180,83,9,0.25);
+        color: var(--amber);
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 12px;
+      }
+      .presuf-wrap input::placeholder { color: rgba(180,83,9,0.35); }
+      .presuf-wrap input:focus {
+        border-color: var(--amber);
+        box-shadow: 0 0 0 3px rgba(180,83,9,0.1);
+      }
+      .presuf-divider {
+        font-size: 11px;
+        color: var(--amber);
+        opacity: 0.5;
+        flex-shrink: 0;
+      }
+
+      /* ── SKIP-IF-VALUE PANEL ─── */
+      .skipif-btn {
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--red);
+        cursor: pointer;
+        padding: 3px 9px;
+        border-radius: 5px;
+        border: 1px solid rgba(220,38,38,0.22);
+        background: var(--red-g);
+        white-space: nowrap;
+        font-family: "Plus Jakarta Sans", sans-serif;
+        transition: all 0.15s;
+      }
+      .skipif-btn:hover,
+      .skipif-btn.active {
+        background: var(--red);
+        color: #fff;
+        border-color: var(--red);
+      }
+      .skipif-wrap {
+        display: none;
+        align-items: center;
+        gap: 6px;
+        margin-top: 8px;
+        padding: 8px 10px;
+        background: var(--red-g);
+        border: 1px solid rgba(220,38,38,0.18);
+        border-radius: 6px;
+        flex-wrap: wrap;
+      }
+      .skipif-wrap.open { display: flex; }
+      .skipif-wrap label {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--red);
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+      .skipif-wrap input {
+        max-width: 260px;
+        flex: 1;
+        background: rgba(220,38,38,0.04);
+        border-color: rgba(220,38,38,0.25);
+        color: var(--red);
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 12px;
+      }
+      .skipif-wrap input::placeholder { color: rgba(220,38,38,0.35); }
+      .skipif-wrap input:focus {
+        border-color: var(--red);
+        box-shadow: 0 0 0 3px rgba(220,38,38,0.1);
+      }
+      .skipif-hint {
+        font-size: 10px;
+        color: var(--red);
+        opacity: 0.65;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+
+      /* ── INLINE WARN ─── */
+      .inline-warn {
+        font-size: 10px;
+        font-weight: 600;
+        color: var(--amber);
+        background: var(--amber-g);
+        border: 1px solid rgba(180, 83, 9, 0.22);
+        border-radius: 4px;
+        padding: 1px 6px;
+        white-space: nowrap;
+        flex-shrink: 0;
+      }
+
+      /* ── ANIMATIONS ─── */
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .card {
+        animation: fadeUp 0.3s ease both;
+      }
+      .card:nth-child(1) {
+        animation-delay: 0.02s;
+      }
+      .card:nth-child(2) {
+        animation-delay: 0.06s;
+      }
+      .card:nth-child(3) {
+        animation-delay: 0.1s;
+      }
+      .card:nth-child(4) {
+        animation-delay: 0.14s;
+      }
+      .btn-generate {
+        animation: fadeUp 0.3s 0.16s ease both;
+      }
+
+      /* ── SPACE-Y ─── */
+      .space-y > * + * {
+        margin-top: 6px;
+      }
+
+      /* ── SAVE PRESET ROW ─── */
+      .save-preset-row {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .save-preset-row input[type="text"] {
+        width: 148px;
+        padding: 5px 9px;
+        font-size: 11.5px;
+      }
+      .save-preset-row .btn {
+        padding: 5px 11px;
+        font-size: 11.5px;
+      }
+
+      /* ── PRESET CHIP RENAME ─── */
+      .preset-chip.renaming .chip-name-btn {
+        display: none;
+      }
+      .preset-chip .chip-rename-input {
+        display: none;
+        padding: 3px 8px;
+        font-size: 11.5px;
+        font-family: "Plus Jakarta Sans", sans-serif;
+        border: none;
+        outline: none;
+        background: var(--bg2);
+        color: var(--text);
+        width: 100px;
+        min-width: 60px;
+        max-width: 180px;
+      }
+      .preset-chip.renaming .chip-rename-input {
+        display: block;
+      }
+      .preset-chip .chip-confirm-btn {
+        display: none;
+        padding: 4px 8px;
+        font-size: 11px;
+        font-weight: 700;
+        border: none;
+        background: var(--accent-g);
+        color: var(--accent);
+        cursor: pointer;
+        border-left: 1px solid var(--border);
+      }
+      .preset-chip.renaming .chip-confirm-btn {
+        display: flex;
+        align-items: center;
+      }
+
+      /* ── DRAG HANDLE ─── */
+      .drag-handle {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 2px;
+        width: 22px;
+        height: 28px;
+        flex-shrink: 0;
+        cursor: grab;
+        opacity: 0.55;
+        transition: opacity 0.15s;
+        padding: 2px;
+        border-radius: 4px;
+        border: 1px dashed transparent;
+      }
+      .drag-handle:hover {
+        opacity: 1;
+        border-color: var(--border2);
+        background: var(--bg3);
+      }
+      .drag-handle span {
+        display: block;
+        width: 14px;
+        height: 2px;
+        background: var(--text2);
+        border-radius: 2px;
+      }
+      .drag-handle-tip {
+        font-size: 8.5px;
+        color: var(--text3);
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        margin-left: 2px;
+        white-space: nowrap;
+      }
+
+      /* ── TAG MODE TOGGLE ─── */
+      .tag-mode-group {
+        display: inline-flex;
+        border-radius: 5px;
+        overflow: hidden;
+        border: 1px solid var(--border2);
+        flex-shrink: 0;
+      }
+      .tag-mode-group label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        position: relative;
+      }
+      .tag-mode-group input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+        pointer-events: none;
+      }
+      .tag-mode-group .tmg-label {
+        display: block;
+        padding: 2px 7px;
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        color: var(--text3);
+        background: var(--bg3);
+        border-right: 1px solid var(--border2);
+        transition: all 0.13s;
+        white-space: nowrap;
+        font-family: "Plus Jakarta Sans", sans-serif;
+        user-select: none;
+      }
+      .tag-mode-group label:last-child .tmg-label {
+        border-right: none;
+      }
+      .tag-mode-group input[type="radio"]:checked + .tmg-label {
+        background: var(--accent);
+        color: #fff;
+      }
+
+      /* ── SECTION LABEL ─── */
+      .section-label {
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: var(--text3);
+        margin-bottom: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .section-label::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--border);
+      }
+
+      /* ── TAG ROW GRID ─── */
+      .tag-row-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1.2fr auto;
+        gap: 8px;
+        align-items: center;
+      }
+      @media (max-width: 640px) {
+        .tag-row-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      /* ── TOAST ─── */
+      .toast {
+        position: fixed;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%) translateY(80px);
+        background: var(--text);
+        color: #fff;
+        padding: 8px 18px;
+        border-radius: 8px;
+        font-size: 12.5px;
+        font-weight: 600;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+        transition:
+          transform 0.3s ease,
+          opacity 0.3s ease;
+        opacity: 0;
+        z-index: 999;
+        white-space: nowrap;
+      }
+      .toast.show {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+      }
+
+      /* ── XML PASTE MODAL ─── */
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.35);
+        z-index: 200;
+        align-items: center;
+        justify-content: center;
+      }
+      .modal-overlay.open {
+        display: flex;
+      }
+      .modal-box {
+        background: var(--bg2);
+        border-radius: var(--radius-lg);
+        padding: 24px;
+        max-width: 540px;
+        width: 90%;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .modal-title {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--text);
+      }
+      .modal-desc {
+        font-size: 12px;
+        color: var(--text2);
+        line-height: 1.6;
+      }
+      .modal-actions {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+      }
+      #xmlPasteArea {
+        min-height: 160px;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 11.5px;
+        resize: vertical;
+      }
+
+      /* ── JSON PASTE MODAL ─── */
+      #jsonPasteArea {
+        min-height: 180px;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 11.5px;
+        resize: vertical;
+      }
+      #jsonPasteArea.error {
+        border-color: var(--red);
+        box-shadow: 0 0 0 3px rgba(220,38,38,0.1);
+      }
+      .json-paste-error {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--red);
+        background: var(--red-g);
+        border: 1px solid rgba(220,38,38,0.22);
+        border-radius: 6px;
+        padding: 7px 11px;
+        display: none;
+      }
+      .json-paste-error.visible { display: block; }
+
+      /* ── SHARE URL ─── */
+      .share-url-row {
+        display: none;
+        align-items: center;
+        gap: 6px;
+        margin-top: 10px;
+        padding: 9px 12px;
+        background: var(--accent-g);
+        border: 1px solid var(--accent-b);
+        border-radius: 8px;
+      }
+      .share-url-row.visible { display: flex; }
+      .share-url-input {
+        flex: 1;
+        font-family: "IBM Plex Mono", monospace;
+        font-size: 11px;
+        color: var(--accent);
+        background: transparent;
+        border: none;
+        outline: none;
+        min-width: 0;
+        padding: 0;
+      }
+      .share-url-copy {
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--accent);
+        cursor: pointer;
+        padding: 3px 9px;
+        border-radius: 5px;
+        border: 1px solid var(--accent-b);
+        background: var(--bg2);
+        white-space: nowrap;
+        font-family: "Plus Jakarta Sans", sans-serif;
+        transition: all 0.15s;
+        flex-shrink: 0;
+      }
+      .share-url-copy:hover {
+        background: var(--accent);
+        color: #fff;
+        border-color: var(--accent);
+      }
+      .share-url-close {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 15px;
+        color: var(--text3);
+        padding: 0 2px;
+        transition: color 0.15s;
+        flex-shrink: 0;
+        font-family: "Plus Jakarta Sans", sans-serif;
+      }
+      .share-url-close:hover { color: var(--red); }
+    </style>
+  </head>
+  <body>
+    <div class="toast" id="toast"></div>
+
+    <!-- XML Paste Modal -->
+    <div class="modal-overlay" id="xmlPasteModal">
+      <div class="modal-box">
+        <div class="modal-title">Paste XML to Auto-Fill Tags</div>
+        <div class="modal-desc">
+          Paste any XML below. Elements become tag rows, nested elements become
+          groups, text content becomes fixed values, and attributes are added
+          automatically.
+        </div>
+        <textarea
+          id="xmlPasteArea"
+          placeholder="&lt;RECORD&gt;&#10;  &lt;NAME&gt;John&lt;/NAME&gt;&#10;  &lt;AMOUNT&gt;100&lt;/AMOUNT&gt;&#10;&lt;/RECORD&gt;"
+        ></textarea>
+        <div class="modal-actions">
+          <button class="btn" onclick="closeXmlPasteModal()">Cancel</button>
+          <button class="btn btn-accent" onclick="applyXmlPaste()">
+            ⚡ Fill Tags from XML
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- JSON Paste Modal -->
+    <div class="modal-overlay" id="jsonPasteModal">
+      <div class="modal-box">
+        <div class="modal-title">Paste JSON Data</div>
+        <div class="modal-desc">
+          Paste a JSON array or object below. Works the same as dropping a file — arrays load directly, nested objects let you pick the array key.
+        </div>
+        <textarea id="jsonPasteArea" placeholder='[&#10;  { "name": "Alice", "amount": "500" },&#10;  { "name": "Bob",   "amount": "750" }&#10;]'></textarea>
+        <div class="json-paste-error" id="jsonPasteError"></div>
+        <div class="modal-actions">
+          <button class="btn" onclick="closeJsonPasteModal()">Cancel</button>
+          <button class="btn btn-accent" onclick="applyJsonPaste()">⚡ Load JSON</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- HEADER -->
+    <header>
+      <div class="logo">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8L14 2z"
+            fill="white"
+            fill-opacity="0.3"
+          />
+          <path
+            d="M14 2v6h6"
+            stroke="white"
+            stroke-width="1.5"
+            stroke-linecap="round"
+          />
+          <path
+            d="M9 13l-2 2 2 2M15 13l2 2-2 2M12 11l-1 6"
+            stroke="white"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </div>
+      <div>
+        <h1>XML Generator <span>Pro</span></h1>
+        <p>Smart JSON · Dot notation · Array repeat · Drag & drop</p>
+      </div>
+      <div class="header-right">
+        <div class="json-status" id="jsonStatusPill">
+          <span class="dot"></span>
+          <span id="jsonStatusText">No data loaded</span>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <!-- JSON DATA SOURCE -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title accent">JSON Data Source</span>
+          <div class="flex items-center gap-2" style="margin-left: auto">
+            <div class="json-file-meta" id="jsonFileMeta">
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="var(--green)"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+              <span class="fname" id="jsonFileName">—</span>
+              <span class="frows" id="jsonRowCount">—</span>
+              <button
+                class="json-clear-btn"
+                id="clearJsonBtn"
+                onclick="clearJsonData()"
+                title="Remove file"
+                style="display: none"
+              >
+                ×
+              </button>
+            </div>
+            <button
+              class="btn btn-ghost-red"
+              id="clearJsonBtnHeader"
+              onclick="clearJsonData()"
+              style="display: none"
+            >
+              Clear Data
+            </button>
+          </div>
+        </div>
+        <div class="card-body" style="padding: 12px 16px">
+          <div
+            class="json-drop-zone"
+            id="dropZone"
+            ondragover="handleDragOver(event)"
+            ondragleave="handleDragLeave(event)"
+            ondrop="handleDrop(event)"
+          >
+            <input
+              type="file"
+              accept=".json"
+              id="jsonFileInput"
+              onchange="handleFileSelect(event)"
+            />
+            <div class="drop-icon" id="dropIcon">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                style="color: var(--text3)"
+              >
+                <path
+                  d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"
+                />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="12" y1="18" x2="12" y2="12" />
+                <polyline points="9 15 12 12 15 15" />
+              </svg>
+            </div>
+            <div class="drop-text">
+              <div class="drop-title" id="dropTitle">
+                Drop your JSON file here
+              </div>
+              <div class="drop-subtitle" id="dropSubtitle">
+                or <b>click to browse</b> — file is saved across sessions
+              </div>
+            </div>
+          </div>
+
+          <!-- Root key picker (shown for nested JSON) -->
+          <div class="root-key-picker" id="rootKeyPicker">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="var(--amber)"
+              stroke-width="2.2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+            <label>Nested JSON detected — pick the array to iterate:</label>
+            <select
+              id="rootKeySelect"
+              onchange="applyRootKeySelection()"
+            ></select>
+          </div>
+          <div style="margin-top:10px;display:flex;align-items:center;gap:8px;">
+            <span style="font-size:11px;color:var(--text3);font-weight:600;">or</span>
+            <button class="btn btn-ghost-accent" style="font-size:11px;" onclick="openJsonPasteModal()">{ } Paste JSON</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PRESETS & WRAPPER -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title accent">Presets</span>
+          <div class="flex items-center gap-2" style="flex-wrap: wrap">
+            <div class="save-preset-row" id="savePresetRow">
+              <input
+                type="text"
+                id="savePresetName"
+                placeholder="Preset name…"
+                autocomplete="off"
+              />
+              <button class="btn btn-accent" onclick="savePresetFromInput()">
+                Save
+              </button>
+            </div>
+            <button
+              class="btn btn-ghost-green"
+              onclick="exportCurrentSettings()"
+            >
+              ↓ Export
+            </button>
+            <label
+              class="btn btn-ghost-amber"
+              style="cursor: pointer"
+              title="Import one or more .json preset files"
+            >
+              ↑ Import
+              <input
+                type="file"
+                accept=".json"
+                multiple
+                onchange="importPreset(event)"
+                style="display: none"
+              />
+            </label>
+            <button class="btn btn-ghost-purple" onclick="shareCurrentConfig()" title="Generate a shareable URL for this configuration">
+              ⎘ Share URL
+            </button>
+            <button class="btn btn-ghost-accent" onclick="openLoadUrl()" title="Paste a shared URL to load its configuration">
+              ⎘ Load URL
+            </button>
+          </div>
+        </div>
+        <div class="card-body">
+
+          <div id="presetList" class="flex flex-wrap gap-2"></div>
+          <div class="share-url-row" id="shareUrlRow">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+            <input class="share-url-input" id="shareUrlInput" type="text" readonly onclick="this.select()" />
+            <button class="share-url-copy" onclick="copyShareUrl()">Copy</button>
+            <button class="share-url-close" onclick="document.getElementById('shareUrlRow').classList.remove('visible')" title="Dismiss">×</button>
+          </div>
+          <div class="share-url-row" id="loadUrlRow" style="background:var(--accent-g);border-color:var(--accent-b);">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0"><path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/></svg>
+            <input class="share-url-input" id="loadUrlInput" type="text" placeholder="Paste shared URL here…" style="color:var(--text);" />
+            <button class="share-url-copy" onclick="applyLoadUrl()">Load</button>
+            <button class="share-url-close" onclick="closeLoadUrl()" title="Dismiss">×</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAGS / STRUCTURE -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">Tags &amp; Structure</span>
+          <div class="flex gap-2">
+            <button class="btn btn-ghost-purple" onclick="openXmlPasteModal()">
+              ⎘ Paste XML
+            </button>
+            <button class="btn" onclick="addChildRow()">＋ Simple Tag</button>
+            <button class="btn btn-ghost-accent" onclick="addGroup()">
+              ＋ Nested Group
+            </button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div id="childContainer" class="space-y"></div>
+        </div>
+      </div>
+
+      <!-- GENERATE -->
+      <button class="btn-generate" onclick="generateXML()" id="generateBtn">
+        ⚡ Generate XML from JSON
+      </button>
+
+      <!-- OUTPUT -->
+      <div class="card output-wrap">
+        <div class="card-header">
+          <span class="card-title green">XML Output</span>
+          <div class="flex gap-2">
+            <button class="btn" onclick="copyOutput()">Copy</button>
+            <button class="btn btn-ghost-green" onclick="downloadXML()">
+              ⬇ Download
+            </button>
+          </div>
+        </div>
+        <div style="padding: 0">
+          <pre
+            id="output"
+            class="placeholder-text"
+            style="
+              border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+              border: none;
+              border-top: 1px solid var(--border);
+            "
+          >
+XML preview will appear here…</pre
+          >
+        </div>
+      </div>
+    </main>
+
+    <!-- autocomplete datalists (populated dynamically) -->
+    <datalist id="jsonKeys"></datalist>
+    <datalist id="attrNames"></datalist>
+    <datalist id="childNames"></datalist>
+
+    <script>
+      "use strict";
+
+      // ─── TOAST ────────────────────────────────────────────────────────────────────
+      function showToast(msg) {
+        const t = document.getElementById("toast");
+        t.textContent = msg;
+        t.classList.add("show");
+        setTimeout(() => t.classList.remove("show"), 2400);
+      }
+
+      // ─── STATE ────────────────────────────────────────────────────────────────────
+      let cachedData = []; // the array currently in use (after root-key resolution)
+      let rawJsonData = null; // the raw parsed JSON (may be object or array)
+      let selectedRootKey = ""; // key chosen from nested-object picker
+
+      const JSON_STORAGE_KEY = "xml_pro_json_data";
+      const JSON_NAME_KEY = "xml_pro_json_name";
+      const JSON_RAW_KEY = "xml_pro_json_raw";
+      const JSON_ROOTKEY_KEY = "xml_pro_root_key";
+
+      // ─── DOT NOTATION ─────────────────────────────────────────────────────────────
+      function getByDot(obj, path) {
+        if (!path) return undefined;
+        return path
+          .split(".")
+          .reduce(
+            (cur, key) =>
+              cur != null && typeof cur === "object" ? cur[key] : undefined,
+            obj,
+          );
+      }
+
+      // ─── FLATTEN KEYS (dot notation) ─────────────────────────────────────────────
+      function flattenKeys(obj, prefix = "", out = []) {
+        if (!obj || typeof obj !== "object" || Array.isArray(obj)) return out;
+        Object.entries(obj).forEach(([k, v]) => {
+          const full = prefix ? `${prefix}.${k}` : k;
+          out.push(full);
+          if (v && typeof v === "object" && !Array.isArray(v))
+            flattenKeys(v, full, out);
+        });
+        return out;
+      }
+
+      // ─── AUTOCOMPLETE DATALIST ────────────────────────────────────────────────────
+      function populateAutocomplete() {
+        const dl = document.getElementById("jsonKeys");
+        dl.innerHTML = "";
+        if (!cachedData.length) return;
+        const keys = flattenKeys(cachedData[0]);
+        keys.forEach((k) => {
+          const o = document.createElement("option");
+          o.value = k;
+          dl.appendChild(o);
+        });
+      }
+
+      // ─── SMART JSON LOADER ────────────────────────────────────────────────────────
+      function processJsonFile(file) {
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            const parsed = JSON.parse(e.target.result);
+            rawJsonData = parsed;
+            // persist raw
+            try {
+              localStorage.setItem(JSON_RAW_KEY, e.target.result);
+              localStorage.setItem(JSON_NAME_KEY, file.name);
+            } catch (_) {}
+
+            if (Array.isArray(parsed)) {
+              // flat array — load directly
+              selectedRootKey = "";
+              cachedData = parsed;
+              storeJsonData(file.name, parsed);
+              updateJsonUI(file.name, parsed.length);
+              showRootKeyPicker(false);
+              populateAutocomplete();
+              showToast(
+                `✓ Loaded ${parsed.length} record${parsed.length !== 1 ? "s" : ""}`,
+              );
+            } else if (parsed && typeof parsed === "object") {
+              // nested object — find array-valued keys
+              const arrayKeys = Object.keys(parsed).filter((k) =>
+                Array.isArray(parsed[k]),
+              );
+              if (arrayKeys.length === 0) {
+                // no arrays — wrap as single record
+                selectedRootKey = "";
+                cachedData = [parsed];
+                storeJsonData(file.name, cachedData);
+                updateJsonUI(file.name, 1);
+                showRootKeyPicker(false);
+                populateAutocomplete();
+                showToast("✓ Loaded 1 record (single object)");
+              } else if (arrayKeys.length === 1) {
+                // auto-select only array
+                selectedRootKey = arrayKeys[0];
+                cachedData = parsed[selectedRootKey];
+                storeJsonData(file.name, cachedData);
+                try {
+                  localStorage.setItem(JSON_ROOTKEY_KEY, selectedRootKey);
+                } catch (_) {}
+                updateJsonUI(file.name, cachedData.length);
+                showRootKeyPicker(false);
+                populateAutocomplete();
+                showToast(
+                  `✓ Auto-selected key "${selectedRootKey}" — ${cachedData.length} records`,
+                );
+              } else {
+                // show picker
+                buildRootKeyPicker(arrayKeys, parsed);
+                updateJsonUI(file.name, 0, true);
+                showToast("Nested JSON — pick which array to use");
+              }
+            } else {
+              showToast("⚠️ Unrecognised JSON structure");
+            }
+          } catch {
+            showToast("⚠️ Invalid JSON file");
+          }
+        };
+        reader.readAsText(file);
+      }
+
+      function buildRootKeyPicker(keys, parsed) {
+        const sel = document.getElementById("rootKeySelect");
+        sel.innerHTML = keys
+          .map(
+            (k) =>
+              `<option value="${k}">${k} (${parsed[k].length} items)</option>`,
+          )
+          .join("");
+        showRootKeyPicker(true);
+      }
+
+      function showRootKeyPicker(show) {
+        const p = document.getElementById("rootKeyPicker");
+        p.classList.toggle("visible", show);
+      }
+
+      function applyRootKeySelection() {
+        if (!rawJsonData || Array.isArray(rawJsonData)) return;
+        const key = document.getElementById("rootKeySelect").value;
+        selectedRootKey = key;
+        cachedData = rawJsonData[key] || [];
+        const name = localStorage.getItem(JSON_NAME_KEY) || "data.json";
+        storeJsonData(name, cachedData);
+        try {
+          localStorage.setItem(JSON_ROOTKEY_KEY, key);
+        } catch (_) {}
+        updateJsonUI(name, cachedData.length);
+        populateAutocomplete();
+        showToast(`✓ Using key "${key}" — ${cachedData.length} records`);
+      }
+
+      function storeJsonData(name, data) {
+        try {
+          localStorage.setItem(JSON_STORAGE_KEY, JSON.stringify(data));
+          localStorage.setItem(JSON_NAME_KEY, name);
+        } catch (_) {
+          showToast("⚠️ Storage full — data won't persist after close");
+        }
+      }
+
+      function loadStoredJson() {
+        try {
+          const stored = localStorage.getItem(JSON_STORAGE_KEY);
+          const name = localStorage.getItem(JSON_NAME_KEY) || "data.json";
+          const rk = localStorage.getItem(JSON_ROOTKEY_KEY) || "";
+          if (stored) {
+            cachedData = JSON.parse(stored);
+            selectedRootKey = rk;
+            // try restore raw for picker
+            const raw = localStorage.getItem(JSON_RAW_KEY);
+            if (raw) rawJsonData = JSON.parse(raw);
+            updateJsonUI(name, cachedData.length);
+            populateAutocomplete();
+          }
+        } catch (e) {
+          console.warn("Could not restore JSON:", e);
+        }
+      }
+
+      function updateJsonUI(name, rowCount, pickerPending = false) {
+        const pill = document.getElementById("jsonStatusPill");
+        pill.classList.add("loaded");
+        document.getElementById("jsonStatusText").textContent = pickerPending
+          ? "Pick array key…"
+          : `${rowCount} row${rowCount !== 1 ? "s" : ""} loaded`;
+
+        const dz = document.getElementById("dropZone");
+        dz.classList.add("has-file");
+        document.getElementById("dropTitle").textContent = pickerPending
+          ? "✓ JSON parsed — choose array"
+          : "✓ JSON loaded";
+        document.getElementById("dropSubtitle").textContent =
+          "Drop a new file to replace";
+        document.getElementById("dropIcon").innerHTML =
+          `<svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+
+        const meta = document.getElementById("jsonFileMeta");
+        meta.classList.add("visible");
+        document.getElementById("jsonFileName").textContent = name;
+        document.getElementById("jsonRowCount").textContent = pickerPending
+          ? "select a key above"
+          : `${rowCount} record${rowCount !== 1 ? "s" : ""}`;
+        document.getElementById("clearJsonBtn").style.display = "";
+        document.getElementById("clearJsonBtnHeader").style.display = "";
+      }
+
+      function resetJsonUI() {
+        document.getElementById("jsonStatusPill").classList.remove("loaded");
+        document.getElementById("jsonStatusText").textContent =
+          "No data loaded";
+        const dz = document.getElementById("dropZone");
+        dz.classList.remove("has-file");
+        document.getElementById("dropTitle").textContent =
+          "Drop your JSON file here";
+        document.getElementById("dropSubtitle").innerHTML =
+          "or <b>click to browse</b> — file is saved across sessions";
+        document.getElementById("dropIcon").innerHTML =
+          `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text3)"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 12 15 15"/></svg>`;
+        document.getElementById("jsonFileMeta").classList.remove("visible");
+        document.getElementById("clearJsonBtn").style.display = "none";
+        document.getElementById("clearJsonBtnHeader").style.display = "none";
+        showRootKeyPicker(false);
+      }
+
+      function clearJsonData() {
+        cachedData = [];
+        rawJsonData = null;
+        selectedRootKey = "";
+        [
+          JSON_STORAGE_KEY,
+          JSON_NAME_KEY,
+          JSON_RAW_KEY,
+          JSON_ROOTKEY_KEY,
+        ].forEach((k) => localStorage.removeItem(k));
+        resetJsonUI();
+        document.getElementById("jsonKeys").innerHTML = "";
+        document.getElementById("jsonFileInput").value = "";
+        showToast("JSON data cleared");
+      }
+
+      // ─── FILE DROP / SELECT ───────────────────────────────────────────────────────
+      function handleDragOver(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        document.getElementById("dropZone").classList.add("drag-over");
+      }
+      
+      function handleDragLeave(e) {
+        document.getElementById("dropZone").classList.remove("drag-over");
+      }
+      function handleDrop(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        document.getElementById("dropZone").classList.remove("drag-over");
+        const file = e.dataTransfer.files[0];
+        if (file && file.name.endsWith(".json")) processJsonFile(file);
+        else showToast("⚠️ Please drop a .json file");
+      }
+      function handleFileSelect(e) {
+        const f = e.target.files[0];
+        if (f) processJsonFile(f);
+        e.target.value = "";
+      }
+
+      // ─── HELPERS ─────────────────────────────────────────────────────────────────
+      function el(tag, cls, html = "") {
+        const d = document.createElement(tag);
+        if (cls) d.className = cls;
+        if (html) d.innerHTML = html;
+        return d;
+      }
+      function inp(placeholder, listId = "", extraCls = "") {
+        const i = document.createElement("input");
+        i.type = "text";
+        i.placeholder = placeholder;
+        if (listId) i.setAttribute("list", listId);
+        if (extraCls) i.className = extraCls;
+        return i;
+      }
+
+      // ─── ATTR ROW ────────────────────────────────────────────────────────────────
+      function makeAttrRow(name = "", fixed = "", jsonKey = "") {
+        const d = el("div", "attr-grid");
+        const n = inp("Attr Name", "attrNames");
+        n.value = name;
+        n.className += " attr-name";
+        const f = inp("Fixed Value");
+        f.value = fixed;
+        f.className += " attr-fixed";
+        const j = inp("JSON Key", "jsonKeys", "json-key attr-json");
+        j.value = jsonKey;
+        const rb = document.createElement("button");
+        rb.className = "remove-btn";
+        rb.innerHTML = "×";
+        rb.onclick = () => d.remove();
+        d.append(n, f, j, rb);
+        return d;
+      }
+
+      // ─── DRAG HANDLE ─────────────────────────────────────────────────────────────
+      function makeDragHandle() {
+        const h = el("div", "drag-handle");
+        h.innerHTML = "<span></span><span></span><span></span>";
+        h.title = "Drag to reorder";
+        return h;
+      }
+
+      // ─── GLOBAL DRAG STATE ────────────────────────────────────────────────────────
+      let _dragSrcEl = null;
+
+      function attachDragEvents(wrap) {
+        wrap.setAttribute("draggable", "true");
+
+        wrap.addEventListener("dragstart", (e) => {
+          e.stopPropagation();
+          e.dataTransfer.effectAllowed = "move";
+          e.dataTransfer.setData("text/plain", "tag-block"); // required for Firefox
+          _dragSrcEl = wrap;
+          setTimeout(() => wrap.classList.add("dragging"), 0);
+        });
+
+        wrap.addEventListener("dragend", () => {
+          wrap.classList.remove("dragging");
+          _dragSrcEl = null;
+          document
+            .querySelectorAll(".drop-before, .drop-after")
+            .forEach((el) => {
+              el.classList.remove("drop-before", "drop-after");
+            });
+        });
+
+        wrap.addEventListener("dragover", (e) => {
+          if (!_dragSrcEl || _dragSrcEl === wrap) return;
+          if (_dragSrcEl.contains(wrap)) return; // can't drop into own descendant
+          e.preventDefault();
+          e.stopPropagation();
+          e.dataTransfer.dropEffect = "move";
+          document
+            .querySelectorAll(".drop-before, .drop-after")
+            .forEach((el) => {
+              el.classList.remove("drop-before", "drop-after");
+            });
+          const rect = wrap.getBoundingClientRect();
+          const mid = rect.top + rect.height / 2;
+          if (e.clientY < mid) wrap.classList.add("drop-before");
+          else wrap.classList.add("drop-after");
+        });
+
+        wrap.addEventListener("dragleave", (e) => {
+          wrap.classList.remove("drop-before", "drop-after");
+        });
+
+        wrap.addEventListener("drop", (e) => {
+          if (!_dragSrcEl || _dragSrcEl === wrap) return;
+          if (_dragSrcEl.contains(wrap)) return; // can't drop into own descendant
+          e.preventDefault();
+          e.stopPropagation();
+
+          const isBefore = wrap.classList.contains("drop-before");
+          wrap.classList.remove("drop-before", "drop-after");
+
+          const targetParent = wrap.parentNode;
+          // move from any container into target's container
+          if (isBefore) targetParent.insertBefore(_dragSrcEl, wrap);
+          else targetParent.insertBefore(_dragSrcEl, wrap.nextSibling);
+        });
+
+        // allow dropping INTO the group-rows area directly (for cross-container)
+        const groupRows = wrap.querySelector(".group-rows");
+        if (groupRows) {
+          groupRows.addEventListener("dragover", (e) => {
+            if (!_dragSrcEl) return;
+            if (_dragSrcEl === wrap || _dragSrcEl.contains(wrap)) return; // no self-nesting
+            e.preventDefault();
+            e.stopPropagation();
+            e.dataTransfer.dropEffect = "move";
+          });
+          groupRows.addEventListener("drop", (e) => {
+            if (!_dragSrcEl) return;
+            if (_dragSrcEl === wrap || _dragSrcEl.contains(wrap)) return; // no self-nesting
+            e.preventDefault();
+            e.stopPropagation();
+            groupRows.appendChild(_dragSrcEl);
+          });
+        }
+      }
+
+      // ─── TAG MODE TOGGLE ─────────────────────────────────────────────────────────
+      let _modeId = 0;
+      function makeTagModeToggle(mode = "both") {
+        const uid = ++_modeId;
+        const grp = el("div", "tag-mode-group");
+        grp.title = "Tag output mode";
+        [
+          ["both", "Both"],
+          ["open", "‹ Open"],
+          ["close", "Close ›"],
+        ].forEach(([val, label]) => {
+          const lbl = document.createElement("label");
+          const radio = document.createElement("input");
+          radio.type = "radio";
+          radio.name = `tagmode_${uid}`;
+          radio.value = val;
+          radio.className = "tag-mode-radio";
+          if (val === mode) radio.checked = true;
+          const span = el("span", "tmg-label");
+          span.textContent = label;
+          lbl.append(radio, span);
+          grp.appendChild(lbl);
+        });
+        return grp;
+      }
+
+      // ─── SIMPLE TAG ROW ──────────────────────────────────────────────────────────
+      function addChildRow(data = {}, container = null) {
+        const target = container || document.getElementById("childContainer");
+        const wrap = el("div", "tag-block");
+        wrap.dataset.type = "row";
+
+        const topRow = el("div", "flex items-center flex-wrap gap-2");
+        const handle = makeDragHandle();
+        const badge = el("span", "badge badge-tag");
+        badge.textContent = "Tag";
+
+        const tagInput = inp("Tag Name", "childNames");
+        tagInput.className += " tag-name";
+        tagInput.style.flex = "1";
+        tagInput.style.minWidth = "90px";
+        tagInput.value = data.tag || "";
+
+        const fixedInput = inp("Fixed Value");
+        fixedInput.className += " fixed-val";
+        fixedInput.style.flex = "1";
+        fixedInput.style.minWidth = "80px";
+        fixedInput.value = data.fixed || "";
+
+        const jsonInput = inp("JSON Key", "jsonKeys", "json-key json-val");
+        jsonInput.style.flex = "1";
+        jsonInput.style.minWidth = "80px";
+        jsonInput.value = data.jsonKey || "";
+
+        const modeToggle = makeTagModeToggle(data.tagMode || "both");
+
+        const skipLabel = el("label", "skip-label");
+        skipLabel.innerHTML = "SKIP";
+        const skipCb = document.createElement("input");
+        skipCb.type = "checkbox";
+        skipCb.className = "skip-empty";
+        skipCb.checked = data.skip || false;
+        skipLabel.appendChild(skipCb);
+
+        // ── REPEAT checkbox (for simple tags) ──
+        const rowRepeatLabel = el("label", "repeat-label");
+        rowRepeatLabel.title =
+          "Repeat this tag for every item in a JSON array key";
+        rowRepeatLabel.innerHTML = "REPEAT";
+        const rowRepeatCb = document.createElement("input");
+        rowRepeatCb.type = "checkbox";
+        rowRepeatCb.className = "row-repeat";
+        rowRepeatCb.checked = data.repeat || false;
+        rowRepeatLabel.appendChild(rowRepeatCb);
+
+        const attrBtn = document.createElement("button");
+        attrBtn.className = "toggle-attrs-btn";
+        attrBtn.textContent = "+ Attrs";
+
+        // ── PREFIX / SUFFIX button + panel ──
+        const presufBtn = document.createElement("button");
+        presufBtn.className = "presuf-btn";
+        presufBtn.textContent = "+ Pre/Suf";
+
+        const presufWrap = el("div", "presuf-wrap");
+        const presufPrefixLbl = el("label");
+        presufPrefixLbl.textContent = "Prefix:";
+        const presufPrefixInput = inp('e.g. "- "', "", "presuf-prefix");
+        presufPrefixInput.value = data.prefix || "";
+        const presufDivider = el("span", "presuf-divider");
+        presufDivider.textContent = "·";
+        const presufSuffixLbl = el("label");
+        presufSuffixLbl.textContent = "Suffix:";
+        const presufSuffixInput = inp('e.g. " !"', "", "presuf-suffix");
+        presufSuffixInput.value = data.suffix || "";
+        presufWrap.append(presufPrefixLbl, presufPrefixInput, presufDivider, presufSuffixLbl, presufSuffixInput);
+
+        presufBtn.onclick = () => {
+          const open = presufWrap.classList.toggle("open");
+          presufBtn.classList.toggle("active", open);
+          presufBtn.textContent = open ? "− Pre/Suf" : "+ Pre/Suf";
+        };
+
+        if (data.prefix || data.suffix) {
+          presufWrap.classList.add("open");
+          presufBtn.classList.add("active");
+          presufBtn.textContent = "− Pre/Suf";
+        }
+
+        // ── SKIP-IF-VALUE button + panel ──
+        const skipifBtn = document.createElement("button");
+        skipifBtn.className = "skipif-btn";
+        skipifBtn.textContent = "+ Skip If";
+        skipifBtn.title = "Skip this tag when a specific JSON key or its own value matches a string";
+
+        const skipifWrap = el("div", "skipif-wrap");
+        const skipifKeyLbl = el("label");
+        skipifKeyLbl.textContent = "JSON key (optional):";
+        const skipifKeyInput = inp("e.g. status", "jsonKeys", "json-key row-skipif-key");
+        skipifKeyInput.style.maxWidth = "140px";
+        skipifKeyInput.value = data.skipIfKey || "";
+
+        const skipifSepLbl = el("label");
+        skipifSepLbl.textContent = "= value:";
+        const skipifInput = inp('e.g. 0.00', "", "skipif-val");
+        skipifInput.style.maxWidth = "160px";
+        skipifInput.value = data.skipIfValue || "";
+
+        const skipifHint = el("span", "skipif-hint");
+        skipifHint.textContent = "separate multiple with |";
+
+        skipifWrap.append(skipifKeyLbl, skipifKeyInput, skipifSepLbl, skipifInput, skipifHint);
+
+        skipifBtn.onclick = () => {
+          const open = skipifWrap.classList.toggle("open");
+          skipifBtn.classList.toggle("active", open);
+          skipifBtn.textContent = open ? "− Skip If" : "+ Skip If";
+        };
+
+        if (data.skipIfValue) {
+          skipifWrap.classList.add("open");
+          skipifBtn.classList.add("active");
+          skipifBtn.textContent = "− Skip If";
+        }
+
+        const rb = document.createElement("button");
+        rb.className = "remove-btn";
+        rb.textContent = "×";
+        rb.onclick = () => wrap.remove();
+
+        // ── REPEAT key row (shown when repeat is checked) ──
+        const rowRepeatKeyWrap = el("div", "repeat-key-wrap");
+        const rowRepeatKeyLbl = el("label");
+        rowRepeatKeyLbl.textContent = "JSON array key (optional):";
+        rowRepeatKeyLbl.style.cssText =
+          "font-size:11px;font-weight:600;color:var(--purple);white-space:nowrap;flex-shrink:0;";
+        const rowRepeatKeyInput = inp(
+          "blank = all rows, or e.g. items / tags",
+          "jsonKeys",
+          "json-key row-repeat-key",
+        );
+        rowRepeatKeyInput.style.maxWidth = "260px";
+        rowRepeatKeyInput.style.flex = "1";
+        rowRepeatKeyInput.value = data.repeatKey || "";
+        const rowRepeatHint = el("span");
+        rowRepeatHint.style.cssText =
+          "font-size:10px;color:var(--purple);opacity:0.7;white-space:nowrap;";
+        rowRepeatHint.textContent = "leave blank to repeat over all JSON rows";
+        rowRepeatKeyWrap.append(
+          rowRepeatKeyLbl,
+          rowRepeatKeyInput,
+          rowRepeatHint,
+        );
+
+        function syncRowRepeat() {
+          const on = rowRepeatCb.checked;
+          rowRepeatKeyWrap.classList.toggle("visible", on);
+          wrap.classList.toggle("is-repeating", on);
+        }
+        rowRepeatCb.addEventListener("change", syncRowRepeat);
+        syncRowRepeat();
+
+        const attrsPanel = el("div", "attrs-panel");
+        const attrsInner = el("div", "attrs-panel-inner");
+        const attrsContainer = el("div", "space-y");
+        const addAttrBtn = el(
+          "button",
+          "btn btn-ghost-accent mt-2",
+          "＋ Add Attribute",
+        );
+        addAttrBtn.style.fontSize = "11px";
+        addAttrBtn.style.padding = "4px 10px";
+        addAttrBtn.onclick = () => attrsContainer.appendChild(makeAttrRow());
+        attrsInner.append(attrsContainer, addAttrBtn);
+        attrsPanel.appendChild(attrsInner);
+
+        attrBtn.onclick = () => {
+          attrsPanel.classList.toggle("open");
+          attrBtn.classList.toggle("active");
+          wrap.classList.toggle(
+            "has-attrs",
+            attrsPanel.classList.contains("open"),
+          );
+          attrBtn.textContent = attrsPanel.classList.contains("open")
+            ? "− Attrs"
+            : "+ Attrs";
+        };
+
+        topRow.append(
+          handle,
+          badge,
+          tagInput,
+          fixedInput,
+          jsonInput,
+          modeToggle,
+          skipLabel,
+          rowRepeatLabel,
+          attrBtn,
+          presufBtn,
+          skipifBtn,
+          rb,
+        );
+        wrap.append(topRow, rowRepeatKeyWrap, presufWrap, skipifWrap, attrsPanel);
+
+        if (data.attrs && data.attrs.length) {
+          data.attrs.forEach((a) =>
+            attrsContainer.appendChild(makeAttrRow(a.name, a.fixed, a.jsonKey)),
+          );
+          attrsPanel.classList.add("open");
+          attrBtn.classList.add("active");
+          attrBtn.textContent = "− Attrs";
+          wrap.classList.add("has-attrs");
+        }
+
+        attachDragEvents(wrap);
+        target.appendChild(wrap);
+      }
+
+      // ─── NESTED GROUP ─────────────────────────────────────────────────────────────
+      function addGroup(data = {}, container = null) {
+        const target = container || document.getElementById("childContainer");
+        const wrap = el("div", "tag-block is-group");
+        wrap.dataset.type = "group";
+
+        const topRow = el("div", "flex items-center flex-wrap gap-2 mb-2");
+        const handle = makeDragHandle();
+        const badge = el("span", "badge badge-group");
+        badge.textContent = "Group";
+
+        const nameInput = inp("Group Tag Name");
+        nameInput.className += " group-name";
+        nameInput.style.flex = "1";
+        nameInput.style.minWidth = "120px";
+        nameInput.value = data.name || "";
+
+        // ── REPEAT checkbox ──
+        const repeatLabel = el("label", "repeat-label");
+        repeatLabel.title =
+          "Only THIS group repeats per JSON item — everything outside it renders once with fixed values";
+        repeatLabel.innerHTML = "REPEAT";
+        const repeatCb = document.createElement("input");
+        repeatCb.type = "checkbox";
+        repeatCb.className = "group-repeat";
+        repeatCb.checked = data.repeat || false;
+        repeatLabel.appendChild(repeatCb);
+
+        const attrBtn = document.createElement("button");
+        attrBtn.className = "toggle-attrs-btn";
+        attrBtn.textContent = "+ Attrs";
+
+        // ── GROUP SKIP-IF button + panel ──
+        const groupSkipifBtn = document.createElement("button");
+        groupSkipifBtn.className = "skipif-btn";
+        groupSkipifBtn.textContent = "+ Skip If";
+        groupSkipifBtn.title = "Skip this entire group when a JSON key's value matches a specific string";
+
+        const groupSkipifWrap = el("div", "skipif-wrap");
+        const groupSkipifKeyLbl = el("label");
+        groupSkipifKeyLbl.textContent = "JSON key:";
+        const groupSkipifKeyInput = inp("e.g. status", "jsonKeys", "json-key group-skipif-key");
+        groupSkipifKeyInput.style.maxWidth = "160px";
+        groupSkipifKeyInput.value = data.skipIfKey || "";
+        const groupSkipifSepLbl = el("label");
+        groupSkipifSepLbl.textContent = "= value:";
+        const groupSkipifValInput = inp("e.g. N | 0.00", "", "group-skipif-val");
+        groupSkipifValInput.style.maxWidth = "200px";
+        groupSkipifValInput.value = data.skipIfValue || "";
+        const groupSkipifHint = el("span", "skipif-hint");
+        groupSkipifHint.textContent = "separate multiple with |";
+        groupSkipifWrap.append(groupSkipifKeyLbl, groupSkipifKeyInput, groupSkipifSepLbl, groupSkipifValInput, groupSkipifHint);
+
+        groupSkipifBtn.onclick = () => {
+          const open = groupSkipifWrap.classList.toggle("open");
+          groupSkipifBtn.classList.toggle("active", open);
+          groupSkipifBtn.textContent = open ? "− Skip If" : "+ Skip If";
+        };
+
+        if (data.skipIfValue || data.skipIfKey) {
+          groupSkipifWrap.classList.add("open");
+          groupSkipifBtn.classList.add("active");
+          groupSkipifBtn.textContent = "− Skip If";
+        }
+
+        const rb = document.createElement("button");
+        rb.className = "remove-btn";
+        rb.textContent = "×";
+        rb.onclick = () => wrap.remove();
+
+        const attrsPanel = el("div", "attrs-panel");
+        const attrsInner = el("div", "attrs-panel-inner");
+        const attrsContainer = el("div", "space-y group-attrs-container");
+        const addAttrBtn = el(
+          "button",
+          "btn btn-ghost-accent mt-2",
+          "＋ Add Attribute",
+        );
+        addAttrBtn.style.fontSize = "11px";
+        addAttrBtn.style.padding = "4px 10px";
+        addAttrBtn.onclick = () => attrsContainer.appendChild(makeAttrRow());
+        attrsInner.append(attrsContainer, addAttrBtn);
+        attrsPanel.appendChild(attrsInner);
+
+        attrBtn.onclick = () => {
+          attrsPanel.classList.toggle("open");
+          attrBtn.classList.toggle("active");
+          attrBtn.textContent = attrsPanel.classList.contains("open")
+            ? "− Attrs"
+            : "+ Attrs";
+        };
+
+        // ── REPEAT key row (shown when repeat is checked) ──
+        const repeatKeyWrap = el("div", "repeat-key-wrap");
+        const repeatKeyLbl = el("label");
+        repeatKeyLbl.textContent = "JSON array key (optional):";
+        repeatKeyLbl.style.cssText =
+          "font-size:11px;font-weight:600;color:var(--purple);white-space:nowrap;flex-shrink:0;";
+        const repeatKeyInput = inp(
+          "blank = all rows, or e.g. items / address.lines",
+          "jsonKeys",
+          "json-key group-repeat-key",
+        );
+        repeatKeyInput.style.maxWidth = "260px";
+        repeatKeyInput.style.flex = "1";
+        repeatKeyInput.value = data.repeatKey || "";
+        const repeatHint = el("span");
+        repeatHint.style.cssText =
+          "font-size:10px;color:var(--purple);opacity:0.7;white-space:nowrap;";
+        repeatHint.textContent = "leave blank to repeat over all JSON rows";
+        repeatKeyWrap.append(repeatKeyLbl, repeatKeyInput, repeatHint);
+
+        // toggle repeat key row visibility + border
+        function syncRepeat() {
+          const on = repeatCb.checked;
+          repeatKeyWrap.classList.toggle("visible", on);
+          wrap.classList.toggle("is-repeating", on);
+        }
+        repeatCb.addEventListener("change", syncRepeat);
+        syncRepeat();
+
+        topRow.append(handle, badge, nameInput, repeatLabel, attrBtn, groupSkipifBtn, rb);
+
+        const childrenArea = el("div", "children-area space-y group-rows");
+        const addBtns = el("div", "flex flex-wrap gap-2 mt-2");
+        const addTagBtn = el("button", "btn", "＋ Simple Tag");
+        addTagBtn.style.fontSize = "11px";
+        addTagBtn.onclick = () => addChildRow({}, childrenArea);
+        const addGrpBtn = el(
+          "button",
+          "btn btn-ghost-accent",
+          "＋ Nested Group",
+        );
+        addGrpBtn.style.fontSize = "11px";
+        addGrpBtn.onclick = () => addGroup({}, childrenArea);
+        addBtns.append(addTagBtn, addGrpBtn);
+
+        wrap.append(topRow, attrsPanel, repeatKeyWrap, groupSkipifWrap, childrenArea, addBtns);
+
+        // restore attrs
+        if (data.attrs && Array.isArray(data.attrs)) {
+          data.attrs.forEach((a) =>
+            attrsContainer.appendChild(
+              makeAttrRow(a.name || "", a.fixed || "", a.jsonKey || ""),
+            ),
+          );
+          if (data.attrs.length) {
+            attrsPanel.classList.add("open");
+            attrBtn.classList.add("active");
+            attrBtn.textContent = "− Attrs";
+          }
+        }
+        if (data.children) loadNestedChildren(data.children, childrenArea);
+
+        attachDragEvents(wrap);
+        target.appendChild(wrap);
+      }
+
+      function loadNestedChildren(childrenData, container) {
+        if (!childrenData || !childrenData.length) return;
+        childrenData.forEach((child) => {
+          if (child.type === "group") addGroup(child, container);
+          else addChildRow(child, container);
+        });
+      }
+
+      // ─── VALUE RESOLUTION (dot notation + array repeat + warn) ───────────────────
+      function resolveValue(fixed, jsonKey, item) {
+        const hasJsonKey = jsonKey && jsonKey.trim() !== "";
+        const hasFixed = fixed !== undefined && fixed !== null && fixed !== "";
+
+        if (!hasJsonKey) {
+          // No JSON key — use fixed only (even if fixed is "")
+          return { values: [fixed ?? ""], warn: false };
+        }
+
+        // JSON key is set — look it up
+        const raw = getByDot(item, jsonKey);
+
+        if (raw === undefined || raw === null) {
+          // Key not found — fall back to fixed value and warn
+          return { values: [hasFixed ? fixed : ""], warn: true };
+        }
+
+        if (Array.isArray(raw)) {
+          // Array → repeat tag per element; ignore fixed entirely
+          if (raw.length === 0) return { values: [""], warn: false };
+          return {
+            values: raw.map((v) =>
+              v === null || v === undefined ? "" : String(v),
+            ),
+            warn: false,
+          };
+        }
+
+        // Scalar JSON value — use it exclusively, ignore fixed
+        return { values: [String(raw)], warn: false };
+      }
+
+      function buildAttrsString(attrsContainer, item) {
+        let s = "";
+        attrsContainer.querySelectorAll(".attr-grid").forEach((row) => {
+          const name = row.querySelector(".attr-name")?.value || "";
+          const fixed = row.querySelector(".attr-fixed")?.value || "";
+          const jKey = row.querySelector(".attr-json")?.value || "";
+          if (!name) return;
+          const val = jKey ? (getByDot(item, jKey) ?? fixed) : fixed;
+          s += ` ${name}="${val}"`;
+        });
+        return s;
+      }
+
+      // ─── XML GENERATION ───────────────────────────────────────────────────────────
+      // item = current JSON record context (may be null for fixed-only nodes)
+      // dataArr = the full cachedData array (used when a REPEAT group iterates it wholesale)
+      // Returns { xml: string }
+      function renderContainerXML(container, item, indent, dataArr) {
+        let result = "";
+        const sp = " ".repeat(indent);
+
+        container.childNodes.forEach((node) => {
+          if (!node.dataset) return;
+          const type = node.dataset.type;
+
+          if (type === "row") {
+            const tagName = (scopedQ(node, ".tag-name")?.value || "").trim();
+            if (!tagName) return;
+            const fixedVal = scopedQ(node, ".fixed-val")?.value || "";
+            const jsonKey = scopedQ(node, ".json-val")?.value || "";
+            const skip = scopedQ(node, ".skip-empty")?.checked;
+            const skipIfKey = (scopedQ(node, ".row-skipif-key")?.value || "").trim();
+            const skipIfValue = (scopedQ(node, ".skipif-val")?.value || "").trim();
+            const tagMode = scopedQ(node, ".tag-mode-radio:checked")?.value || "both";
+            const attrsPanel = scopedQ(node, ".attrs-panel");
+            const rowRepeatOn = scopedQ(node, ".row-repeat")?.checked;
+            const rowRepeatKey = (scopedQ(node, ".row-repeat-key")?.value || "").trim();
+            const prefix = scopedQ(node, ".presuf-prefix")?.value || "";
+            const suffix = scopedQ(node, ".presuf-suffix")?.value || "";
+
+            // Helper: check if a value triggers skip condition
+            function shouldSkipValue(v, currentItem) {
+              const strV = String(v ?? "");
+              if (skip && (v === "" || v === null || v === undefined)) return true;
+              
+              if (skipIfValue) {
+                let checkVal = strV;
+                if (skipIfKey) {
+                   const rawCtx = currentItem || {};
+                   const resolvedRaw = getByDot(rawCtx, skipIfKey);
+                   checkVal = resolvedRaw !== undefined && resolvedRaw !== null ? String(resolvedRaw) : "";
+                }
+                const tokens = skipIfValue.split("|").map(t => t.trim());
+                if (tokens.some(t => checkVal === t)) return true;
+              }
+              return false;
+            }
+
+            if (rowRepeatOn) {
+              // ── TAG REPEAT MODE ─────────────────────────────────────────────────
+              let arr = null;
+              if (rowRepeatKey) {
+                const ctx = item || {};
+                const found = getByDot(ctx, rowRepeatKey);
+                if (Array.isArray(found)) {
+                  arr = found;
+                } else if (rawJsonData && !Array.isArray(rawJsonData)) {
+                  const topLevel = getByDot(rawJsonData, rowRepeatKey);
+                  if (Array.isArray(topLevel)) arr = topLevel;
+                }
+                if (!arr) arr = dataArr;
+              } else {
+                arr = dataArr;
+              }
+
+              if (Array.isArray(arr) && arr.length > 0) {
+                arr.forEach((subItem) => {
+                  const ctx =
+                    subItem !== null && typeof subItem === "object"
+                      ? subItem
+                      : { _value: subItem };
+                  const attrsStr = attrsPanel
+                    ? buildAttrsString(attrsPanel, ctx)
+                    : "";
+                  const { values, warn: w } = resolveValue(
+                    fixedVal,
+                    jsonKey,
+                    ctx,
+                  );
+                  values.forEach((v) => {
+                    if (shouldSkipValue(v)) return;
+                    const strV = String(v ?? "");
+                    const decorated = prefix + strV + suffix;
+                    if (tagMode === "open")
+                      result += `${sp}<${tagName}${attrsStr}>\n`;
+                    else if (tagMode === "close")
+                      result += `${sp}</${tagName}>\n`;
+                    else
+                      result += `${sp}<${tagName}${attrsStr}>${decorated}</${tagName}>\n`;
+                  });
+                });
+                node.querySelector(".row-repeat-warn")?.remove();
+              } else {
+                // nothing to repeat — warn + render once with fixed
+                const ctx = item || {};
+                const attrsStr = attrsPanel
+                  ? buildAttrsString(attrsPanel, ctx)
+                  : "";
+                const { values } = resolveValue(fixedVal, jsonKey, ctx);
+                values.forEach((v) => {
+                  if (shouldSkipValue(v)) return;
+                  const strV = String(v ?? "");
+                  const decorated = prefix + strV + suffix;
+                  if (tagMode === "open")
+                    result += `${sp}<${tagName}${attrsStr}>\n`;
+                  else if (tagMode === "close")
+                    result += `${sp}</${tagName}>\n`;
+                  else
+                    result += `${sp}<${tagName}${attrsStr}>${decorated}</${tagName}>\n`;
+                });
+                let warnEl2 = node.querySelector(".row-repeat-warn");
+                if (!warnEl2) {
+                  warnEl2 = el("span", "inline-warn row-repeat-warn");
+                  warnEl2.textContent = rowRepeatKey
+                    ? `⚠ repeat key "${rowRepeatKey}" not found / empty`
+                    : `⚠ no JSON data to repeat`;
+                  node.querySelector(".flex").appendChild(warnEl2);
+                }
+              }
+
+              // clear the standard key-not-found warning when in repeat mode
+              node
+                .querySelector(".inline-warn:not(.row-repeat-warn)")
+                ?.remove();
+            } else {
+              // ── NORMAL (non-repeat) TAG ──────────────────────────────────────────
+              node.querySelector(".row-repeat-warn")?.remove();
+
+              // If no json key, use fixed value regardless of item context
+              const ctx = item || {};
+              const attrsStr = attrsPanel
+                ? buildAttrsString(attrsPanel, ctx)
+                : "";
+              const { values, warn } = resolveValue(fixedVal, jsonKey, ctx);
+
+              values.forEach((v) => {
+                if (shouldSkipValue(v)) return;
+                const strV = String(v ?? "");
+                const decorated = prefix + strV + suffix;
+                if (tagMode === "open")
+                  result += `${sp}<${tagName}${attrsStr}>\n`;
+                else if (tagMode === "close") result += `${sp}</${tagName}>\n`;
+                else
+                  result += `${sp}<${tagName}${attrsStr}>${decorated}</${tagName}>\n`;
+              });
+
+              // attach inline warning to node (visual)
+              let warnEl = node.querySelector(".inline-warn");
+              if (warn && jsonKey) {
+                if (!warnEl) {
+                  warnEl = el("span", "inline-warn");
+                  warnEl.textContent = `⚠ key "${jsonKey}" not found`;
+                  node.querySelector(".flex").appendChild(warnEl);
+                }
+              } else {
+                if (warnEl) warnEl.remove();
+              }
+            }
+          } else if (type === "group") {
+            const groupName = (scopedQ(node, ".group-name")?.value || "").trim();
+            if (!groupName) return;
+            const attrsPanel = scopedQ(node, ".attrs-panel");
+            const groupRows = node.querySelector(".group-rows");
+            const repeatOn = scopedQ(node, ".group-repeat")?.checked;
+            const repeatKey = (scopedQ(node, ".group-repeat-key")?.value || "").trim();
+
+            // ── GROUP SKIP-IF ────────────────────────────────────────────────────────
+            const groupSkipIfKey = (scopedQ(node, ".group-skipif-key")?.value || "").trim();
+            const groupSkipIfVal = (scopedQ(node, ".group-skipif-val")?.value || "").trim();
+            if (groupSkipIfVal) {
+              const ctx = item || (dataArr && dataArr[0]) || {};
+              const resolvedRaw = groupSkipIfKey ? getByDot(ctx, groupSkipIfKey) : undefined;
+              const resolvedStr = resolvedRaw !== undefined && resolvedRaw !== null ? String(resolvedRaw) : "";
+              const tokens = groupSkipIfVal.split("|").map(t => t.trim());
+              if (tokens.some(t => resolvedStr === t)) return;
+            }
+
+            if (repeatOn) {
+              // ── REPEAT MODE ──────────────────────────────────────────────────────
+              let arr = null;
+
+              if (repeatKey) {
+                const ctx = item || {};
+                const found = getByDot(ctx, repeatKey);
+                if (Array.isArray(found)) {
+                  arr = found;
+                } else {
+                  if (rawJsonData && !Array.isArray(rawJsonData)) {
+                    const topLevel = getByDot(rawJsonData, repeatKey);
+                    if (Array.isArray(topLevel)) arr = topLevel;
+                  }
+                  if (!arr) {
+                    arr = dataArr;
+                  }
+                }
+              } else {
+                arr = dataArr;
+              }
+
+              if (Array.isArray(arr) && arr.length > 0) {
+                arr.forEach((subItem) => {
+                  const ctx =
+                    subItem !== null && typeof subItem === "object"
+                      ? subItem
+                      : { _value: subItem };
+                  const attrsStr = attrsPanel
+                    ? buildAttrsString(attrsPanel, ctx)
+                    : "";
+                  if (groupRows) {
+                    const inner = renderContainerXML(groupRows, ctx, indent + 2, dataArr);
+                    result += `${sp}<${groupName}${attrsStr}>\n`;
+                    result += inner.xml;
+                    result += `${sp}</${groupName}>\n`;
+                  } else {
+                    result += `${sp}<${groupName}${attrsStr}>\n`;
+                    result += `${sp}</${groupName}>\n`;
+                  }
+                });
+                node.querySelector(".group-repeat-warn")?.remove();
+              } else {
+                // Nothing to repeat — warn visually and render once with fixed values
+                const attrsStr = attrsPanel
+                  ? buildAttrsString(attrsPanel, item || {})
+                  : "";
+                if (groupRows) {
+                  const inner = renderContainerXML(groupRows, item || {}, indent + 2, dataArr);
+                  result += `${sp}<${groupName}${attrsStr}>\n`;
+                  result += inner.xml;
+                  result += `${sp}</${groupName}>\n`;
+                } else {
+                  result += `${sp}<${groupName}${attrsStr}>\n`;
+                  result += `${sp}</${groupName}>\n`;
+                }
+                let warnEl = node.querySelector(".group-repeat-warn");
+                if (!warnEl) {
+                  warnEl = el("span", "inline-warn group-repeat-warn");
+                  warnEl.textContent = repeatKey
+                    ? `⚠ repeat key "${repeatKey}" not found / empty`
+                    : `⚠ no JSON data to repeat`;
+                  node.querySelector(".flex").appendChild(warnEl);
+                }
+              }
+            } else {
+              // ── FIXED / SINGLE RENDER ────────────────────────────────────────────
+              const ctx = item || (dataArr && dataArr[0]) || {};
+              const attrsStr = attrsPanel
+                ? buildAttrsString(attrsPanel, ctx)
+                : "";
+              if (groupRows) {
+                const inner = renderContainerXML(groupRows, ctx, indent + 2, dataArr);
+                result += `${sp}<${groupName}${attrsStr}>\n`;
+                result += inner.xml;
+                result += `${sp}</${groupName}>\n`;
+              } else {
+                result += `${sp}<${groupName}${attrsStr}>\n`;
+                result += `${sp}</${groupName}>\n`;
+              }
+              node.querySelector(".group-repeat-warn")?.remove();
+            }
+          }
+        });
+
+        return { xml: result };
+      }
+
+      function generateXML() {
+        const rendered = renderContainerXML(
+          document.getElementById("childContainer"),
+          cachedData.length ? cachedData[0] : null,
+          2,
+          cachedData,
+        );
+        const finalOutput = rendered.xml;
+
+        const out = document.getElementById("output");
+        out.textContent = finalOutput || "(no output — check your tag configuration)";
+        out.classList.remove("placeholder-text");
+      }
+
+      // ─── SERIALIZATION ────────────────────────────────────────────────────────────
+
+      // Safe querySelector that won't descend into nested tag-blocks
+      function scopedQ(node, selector) {
+        // Walk all matching descendants but exclude those inside a child tag-block
+        const all = node.querySelectorAll(selector);
+        for (const el of all) {
+          // Check if any ancestor between el and node is another tag-block
+          let cur = el.parentElement;
+          let clean = true;
+          while (cur && cur !== node) {
+            if (cur.classList && cur.classList.contains("tag-block")) {
+              clean = false;
+              break;
+            }
+            cur = cur.parentElement;
+          }
+          if (clean) return el;
+        }
+        return null;
+      }
+
+      function serializeContainer(container) {
+        const result = [];
+        if (!container) return result;
+        container.childNodes.forEach((node) => {
+          if (!node.dataset) return;
+          const type = node.dataset.type;
+          if (type === "row") {
+            const attrs = [];
+            const ap = scopedQ(node, ".attrs-panel");
+            if (ap)
+              ap.querySelectorAll(".attr-grid").forEach((row) => {
+                attrs.push({
+                  name: row.querySelector(".attr-name")?.value || "",
+                  fixed: row.querySelector(".attr-fixed")?.value || "",
+                  jsonKey: row.querySelector(".attr-json")?.value || "",
+                });
+              });
+            result.push({
+              type: "row",
+              tag: scopedQ(node, ".tag-name")?.value || "",
+              fixed: scopedQ(node, ".fixed-val")?.value || "",
+              jsonKey: scopedQ(node, ".json-val")?.value || "",
+              skip: scopedQ(node, ".skip-empty")?.checked || false,
+              skipIfKey: scopedQ(node, ".row-skipif-key")?.value || "",
+              skipIfValue: scopedQ(node, ".skipif-val")?.value || "",
+              tagMode: scopedQ(node, ".tag-mode-radio:checked")?.value || "both",
+              repeat: scopedQ(node, ".row-repeat")?.checked || false,
+              repeatKey: scopedQ(node, ".row-repeat-key")?.value || "",
+              prefix: scopedQ(node, ".presuf-prefix")?.value || "",
+              suffix: scopedQ(node, ".presuf-suffix")?.value || "",
+              attrs,
+            });
+          } else if (type === "group") {
+            const attrs = [];
+            node
+              .querySelector(".group-attrs-container")
+              ?.querySelectorAll(".attr-grid")
+              .forEach((row) => {
+                attrs.push({
+                  name: row.querySelector(".attr-name")?.value || "",
+                  fixed: row.querySelector(".attr-fixed")?.value || "",
+                  jsonKey: row.querySelector(".attr-json")?.value || "",
+                });
+              });
+            result.push({
+              type: "group",
+              name: scopedQ(node, ".group-name")?.value || "",
+              repeat: scopedQ(node, ".group-repeat")?.checked || false,
+              repeatKey: scopedQ(node, ".group-repeat-key")?.value || "",
+              skipIfKey: scopedQ(node, ".group-skipif-key")?.value || "",
+              skipIfValue: scopedQ(node, ".group-skipif-val")?.value || "",
+              attrs,
+              children: serializeContainer(node.querySelector(".group-rows")),
+            });
+          }
+        });
+        return result;
+      }
+
+      function buildConfig() {
+        return {
+          rootKey: selectedRootKey,
+          children: serializeContainer(
+            document.getElementById("childContainer"),
+          ),
+        };
+      }
+
+      function applyConfig(config) {
+        document.getElementById("childContainer").innerHTML = "";
+        if (config.rootKey !== undefined) selectedRootKey = config.rootKey;
+        loadNestedChildren(
+          config.children || [],
+          document.getElementById("childContainer"),
+        );
+      }
+
+      // ─── PRESETS ──────────────────────────────────────────────────────────────────
+      function savePresetFromInput() {
+        const nameEl = document.getElementById("savePresetName");
+        const name = nameEl.value.trim();
+        if (!name) {
+          nameEl.focus();
+          showToast("⚠️ Enter a preset name first");
+          return;
+        }
+        const presets = JSON.parse(localStorage.getItem("xml_presets") || "{}");
+        if (
+          name in presets &&
+          !confirm(`A preset named "${name}" already exists. Overwrite it?`)
+        )
+          return;
+        presets[name] = buildConfig();
+        localStorage.setItem("xml_presets", JSON.stringify(presets));
+        nameEl.value = "";
+        renderPresets();
+        showToast(`✓ Preset "${name}" saved`);
+      }
+
+      // Allow Enter key in the save input — attached in window.onload
+
+      function exportCurrentSettings() {
+        const defaultName = `settings_${new Date().toISOString().slice(0, 10)}`;
+        const name = prompt("Export filename (without .json):", defaultName);
+        if (name === null) return;
+        const safeName = name.trim() || defaultName;
+        const config = buildConfig();
+        const preset = { [safeName]: config };
+        const blob = new Blob([JSON.stringify(preset, null, 2)], {
+          type: "application/json",
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `${safeName}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast("✓ Settings exported");
+      }
+
+      function importPreset(event) {
+        const files = Array.from(event.target.files);
+        if (!files.length) return;
+
+        const existingPresets = JSON.parse(
+          localStorage.getItem("xml_presets") || "{}",
+        );
+        let pending = files.length;
+        let totalImported = 0;
+        let lastLoaded = null;
+
+        files.forEach((file) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            try {
+              const imported = JSON.parse(e.target.result);
+              const keys = Object.keys(imported);
+
+              if (
+                keys.length > 0 &&
+                imported[keys[0]] &&
+                typeof imported[keys[0]] === "object" &&
+                "children" in imported[keys[0]]
+              ) {
+                // Preset-bundle format — check conflicts
+                const conflicts = keys.filter((k) => k in existingPresets);
+                if (
+                  conflicts.length > 0 &&
+                  !confirm(
+                    `"${file.name}" contains preset name${conflicts.length > 1 ? "s" : ""} that already exist:\n\n  ${conflicts.join("\n  ")}\n\nOverwrite?`,
+                  )
+                ) {
+                  // skip just this file
+                } else {
+                  Object.assign(existingPresets, imported);
+                  totalImported += keys.length;
+                  lastLoaded = null; // bundle — don't auto-apply
+                }
+              } else if ("children" in imported) {
+                // Raw config — use filename as default name
+                let name = file.name.replace(/\.json$/, "");
+                if (files.length === 1) {
+                  // Single file: allow renaming
+                  const entered = prompt("Enter a name for this preset:", name);
+                  if (!entered) {
+                    pending--;
+                    return;
+                  }
+                  name = entered.trim() || name;
+                }
+                if (
+                  name in existingPresets &&
+                  !confirm(
+                    `A preset named "${name}" already exists. Overwrite it?`,
+                  )
+                ) {
+                  pending--;
+                  return;
+                }
+                existingPresets[name] = imported;
+                totalImported++;
+                lastLoaded = imported;
+              } else {
+                showToast(`⚠️ "${file.name}" — unrecognised format`);
+              }
+            } catch {
+              showToast(`⚠️ "${file.name}" — invalid JSON`);
+            }
+            pending--;
+            if (pending === 0) {
+              localStorage.setItem(
+                "xml_presets",
+                JSON.stringify(existingPresets),
+              );
+              renderPresets();
+              if (totalImported > 0) {
+                if (lastLoaded) applyConfig(lastLoaded);
+                showToast(
+                  `✓ Imported ${totalImported} preset${totalImported !== 1 ? "s" : ""}`,
+                );
+              }
+            }
+          };
+          reader.readAsText(file);
+        });
+
+        event.target.value = "";
+      }
+
+      function loadPreset(name) {
+        const presets = JSON.parse(localStorage.getItem("xml_presets") || "{}");
+        const config = presets[name];
+        if (!config) return;
+        applyConfig(config);
+        showToast(`✓ Preset "${name}" loaded`);
+      }
+
+      function renamePreset(oldName, newName) {
+        newName = newName.trim();
+        if (!newName || newName === oldName) return false;
+        const presets = JSON.parse(localStorage.getItem("xml_presets") || "{}");
+        if (!(oldName in presets)) return false;
+        if (
+          newName in presets &&
+          !confirm(`A preset named "${newName}" already exists. Overwrite it?`)
+        )
+          return false;
+        presets[newName] = presets[oldName];
+        delete presets[oldName];
+        localStorage.setItem("xml_presets", JSON.stringify(presets));
+        renderPresets();
+        showToast(`✓ Renamed to "${newName}"`);
+        return true;
+      }
+
+      function renderPresets() {
+        const list = document.getElementById("presetList");
+        const presets = JSON.parse(localStorage.getItem("xml_presets") || "{}");
+        const keys = Object.keys(presets);
+        list.innerHTML = "";
+        if (!keys.length) {
+          const empty = document.createElement("span");
+          empty.style.cssText = "font-size:11.5px;color:var(--text3);";
+          empty.textContent =
+            "No saved presets yet — type a name above and click Save.";
+          list.appendChild(empty);
+          return;
+        }
+        keys.forEach((name) => {
+          const chip = document.createElement("div");
+          chip.className = "preset-chip";
+
+          // Load button (shows as the name label)
+          const loadBtn = document.createElement("button");
+          loadBtn.className = "chip-name-btn";
+          loadBtn.textContent = " " + name;
+          loadBtn.dataset.presetName = name;
+          loadBtn.title = "Click to load · Double-click to rename";
+          loadBtn.addEventListener("click", () =>
+            loadPreset(loadBtn.dataset.presetName),
+          );
+          loadBtn.addEventListener("dblclick", (e) => {
+            e.stopPropagation();
+            startRename(chip, name);
+          });
+
+          // Inline rename input
+          const renameInput = document.createElement("input");
+          renameInput.className = "chip-rename-input";
+          renameInput.type = "text";
+          renameInput.value = name;
+          renameInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              commitRename(chip, name, renameInput.value);
+            }
+            if (e.key === "Escape") {
+              cancelRename(chip);
+            }
+          });
+          renameInput.addEventListener("blur", () => {
+            // slight delay so confirm-btn click can fire first
+            setTimeout(() => {
+              if (chip.classList.contains("renaming")) cancelRename(chip);
+            }, 150);
+          });
+
+          // Confirm rename (✓) button
+          const confirmBtn = document.createElement("button");
+          confirmBtn.className = "chip-confirm-btn";
+          confirmBtn.textContent = "✓";
+          confirmBtn.title = "Confirm rename";
+          confirmBtn.addEventListener("mousedown", (e) => e.preventDefault()); // prevent blur before click
+          confirmBtn.addEventListener("click", () =>
+            commitRename(chip, name, renameInput.value),
+          );
+
+          // Delete button
+          const delBtn = document.createElement("button");
+          delBtn.className = "del";
+          delBtn.textContent = "×";
+          delBtn.dataset.presetName = name;
+          delBtn.title = "Delete preset";
+          delBtn.addEventListener("click", () =>
+            deletePreset(delBtn.dataset.presetName),
+          );
+
+          chip.append(loadBtn, renameInput, confirmBtn, delBtn);
+          list.appendChild(chip);
+        });
+      }
+
+      function startRename(chip, name) {
+        chip.classList.add("renaming");
+        const inp = chip.querySelector(".chip-rename-input");
+        inp.value = name;
+        inp.focus();
+        inp.select();
+      }
+
+      function cancelRename(chip) {
+        chip.classList.remove("renaming");
+      }
+
+      function commitRename(chip, oldName, newName) {
+        const ok = renamePreset(oldName, newName.trim());
+        if (!ok) cancelRename(chip);
+        // renderPresets() called inside renamePreset on success, so chip is replaced
+      }
+
+      function deletePreset(name) {
+        if (!confirm(`Delete preset "${name}"?`)) return;
+        const presets = JSON.parse(localStorage.getItem("xml_presets") || "{}");
+        delete presets[name];
+        localStorage.setItem("xml_presets", JSON.stringify(presets));
+        renderPresets();
+      }
+
+      // ─── OUTPUT ACTIONS ───────────────────────────────────────────────────────────
+      function copyOutput() {
+        const text = document.getElementById("output").textContent;
+        navigator.clipboard
+          .writeText(text)
+          .then(() => showToast("✓ Copied to clipboard"));
+      }
+
+      function downloadXML() {
+        const xml = document.getElementById("output").textContent;
+        if (xml.includes("will appear here"))
+          return showToast("Generate XML first");
+        const blob = new Blob([xml], { type: "text/xml" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `Export_${Date.now()}.xml`;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+
+      // ─── XML PASTE TO AUTO-FILL ───────────────────────────────────────────────────
+      function openXmlPasteModal() {
+        document.getElementById("xmlPasteModal").classList.add("open");
+        document.getElementById("xmlPasteArea").value = "";
+        document.getElementById("xmlPasteArea").focus();
+      }
+      function closeXmlPasteModal() {
+        document.getElementById("xmlPasteModal").classList.remove("open");
+      }
+
+      document
+        .getElementById("xmlPasteModal")
+        .addEventListener("click", (e) => {
+          if (e.target === e.currentTarget) closeXmlPasteModal();
+        });
+
+function applyXmlPaste() {
+        let raw = document.getElementById("xmlPasteArea").value.trim();
+        if (!raw) {
+          showToast("⚠️ Nothing pasted");
+          return;
+        }
+
+        try {
+          // ─── PLAIN TEXT TAG EXTRACTOR (No XML Parsing) ───
+          // Matches <TagName attributes>Contents</TagName> or self-closing tags
+          const tagRegex = /<([^\s>]+)([^>]*)>([\s\S]*?)<\/\1>|<([^\s>]+)([^>]*)\/>/g;
+          
+          let matches = [...raw.matchAll(tagRegex)];
+          
+          if (matches.length === 0) {
+            showToast("⚠️ No clear tags found (Must be wrapped in <tag>...</tag>)");
+            return;
+          }
+
+          const container = document.getElementById("childContainer");
+
+          // Helper to parse attributes out of a raw attribute string using plain text rules
+          function parseAttributesText(attrString) {
+            const attrs = [];
+            if (!attrString) return attrs;
+            // Matches name="value" or name='value' safely
+            const attrRegex = /([^\s=]+)\s*=\s*(["'])([\s\S]*?)\2/g;
+            let match;
+            while ((match = attrRegex.exec(attrString)) !== null) {
+              attrs.push({
+                name: match[1],
+                fixed: match[3],
+                jsonKey: ""
+              });
+            }
+            return attrs;
+          }
+
+          // Helper to recursively parse inner tags from raw inner text
+          function parseInnerContent(innerText) {
+            const children = [];
+            let innerMatches = [...innerText.matchAll(tagRegex)];
+
+            if (innerMatches.length === 0) {
+              return null; // Pure text node
+            }
+
+            innerMatches.forEach(m => {
+              const isSelfClosing = !m[1];
+              const tagName = isSelfClosing ? m[4] : m[1];
+              const rawAttrs = isSelfClosing ? m[5] : m[2];
+              const content = isSelfClosing ? "" : m[3];
+
+              const parsedAttrs = parseAttributesText(rawAttrs);
+              const deeplyNested = parseInnerContent(content);
+
+              if (deeplyNested && deeplyNested.length > 0) {
+                children.push({
+                  type: "group",
+                  name: tagName,
+                  attrs: parsedAttrs,
+                  children: deeplyNested
+                });
+              } else {
+                children.push({
+                  type: "row",
+                  tag: tagName,
+                  fixed: content.trim(),
+                  jsonKey: "",
+                  skip: false,
+                  tagMode: "both",
+                  attrs: parsedAttrs
+                });
+              }
+            });
+
+            return children;
+          }
+
+          // Process our root level elements
+          matches.forEach(m => {
+            const isSelfClosing = !m[1];
+            const tagName = isSelfClosing ? m[4] : m[1];
+            const rawAttrs = isSelfClosing ? m[5] : m[2];
+            const content = isSelfClosing ? "" : m[3];
+
+            const parsedAttrs = parseAttributesText(rawAttrs);
+            const children = parseInnerContent(content);
+
+            if (children && children.length > 0) {
+              // Create a nested visual group in UI
+              addGroup({
+                type: "group",
+                name: tagName,
+                attrs: parsedAttrs,
+                children: children
+              }, container);
+            } else {
+              // Create a single row tag in UI
+              addChildRow({
+                type: "row",
+                tag: tagName,
+                fixed: content.trim(),
+                jsonKey: "",
+                skip: false,
+                tagMode: "both",
+                attrs: parsedAttrs
+              }, container);
+            }
+          });
+
+          closeXmlPasteModal();
+          showToast(`✓ Tags built using text parsing`);
+        } catch (e) {
+          console.error(e);
+          showToast("⚠️ Error reading text format");
+        }
+      }
+      function xmlElementToGroupData(el) {
+        const attrsArr = Array.from(el.attributes).map((a) => ({
+          name: a.name,
+          fixed: a.value,
+          jsonKey: "",
+        }));
+        const children = Array.from(el.children).map((child) => {
+          if (child.children.length > 0) return xmlElementToGroupData(child);
+          return {
+            type: "row",
+            tag: child.tagName,
+            fixed: child.textContent.trim(),
+            jsonKey: "",
+            skip: false,
+            tagMode: "both",
+            attrs: Array.from(child.attributes).map((a) => ({
+              name: a.name,
+              fixed: a.value,
+              jsonKey: "",
+            })),
+          };
+        });
+        return {
+          type: "group",
+          name: el.tagName,
+          attrs: attrsArr,
+          children,
+        };
+      }
+
+      function fillTagsFromElement(el, container) {
+        if (el.children.length > 0) {
+          addGroup(xmlElementToGroupData(el), container);
+        } else {
+          addChildRow(
+            {
+              type: "row",
+              tag: el.tagName,
+              fixed: el.textContent.trim(),
+              jsonKey: "",
+              skip: false,
+              tagMode: "both",
+              attrs: Array.from(el.attributes).map((a) => ({
+                name: a.name,
+                fixed: a.value,
+                jsonKey: "",
+              })),
+            },
+            container,
+          );
+        }
+      }
+
+      // ─── PASTE JSON MODAL ─────────────────────────────────────────────────────────
+      function openJsonPasteModal() {
+        document.getElementById("jsonPasteModal").classList.add("open");
+        document.getElementById("jsonPasteArea").value = "";
+        document.getElementById("jsonPasteArea").classList.remove("error");
+        document.getElementById("jsonPasteError").classList.remove("visible");
+        document.getElementById("jsonPasteError").textContent = "";
+        setTimeout(() => document.getElementById("jsonPasteArea").focus(), 50);
+      }
+
+      function closeJsonPasteModal() {
+        document.getElementById("jsonPasteModal").classList.remove("open");
+      }
+
+      document.getElementById("jsonPasteModal").addEventListener("click", (e) => {
+        if (e.target === e.currentTarget) closeJsonPasteModal();
+      });
+
+      function applyJsonPaste() {
+        const raw = document.getElementById("jsonPasteArea").value.trim();
+        const errEl = document.getElementById("jsonPasteError");
+        const ta = document.getElementById("jsonPasteArea");
+
+        if (!raw) {
+          ta.classList.add("error");
+          errEl.textContent = "⚠ Nothing pasted — please paste some JSON first.";
+          errEl.classList.add("visible");
+          return;
+        }
+
+        let parsed;
+        try {
+          parsed = JSON.parse(raw);
+        } catch (e) {
+          ta.classList.add("error");
+          errEl.textContent = `⚠ Invalid JSON: ${e.message}`;
+          errEl.classList.add("visible");
+          return;
+        }
+
+        // Reset error state
+        ta.classList.remove("error");
+        errEl.classList.remove("visible");
+
+        // Reuse the same logic as processJsonFile but with a synthetic "file" name
+        rawJsonData = parsed;
+        const syntheticName = "pasted-data.json";
+
+        // Persist raw
+        try {
+          localStorage.setItem(JSON_RAW_KEY, raw);
+          localStorage.setItem(JSON_NAME_KEY, syntheticName);
+        } catch (_) {}
+
+        if (Array.isArray(parsed)) {
+          selectedRootKey = "";
+          cachedData = parsed;
+          storeJsonData(syntheticName, parsed);
+          updateJsonUI(syntheticName, parsed.length);
+          showRootKeyPicker(false);
+          populateAutocomplete();
+          closeJsonPasteModal();
+          showToast(`✓ Loaded ${parsed.length} record${parsed.length !== 1 ? "s" : ""} from paste`);
+        } else if (parsed && typeof parsed === "object") {
+          const arrayKeys = Object.keys(parsed).filter(k => Array.isArray(parsed[k]));
+          if (arrayKeys.length === 0) {
+            selectedRootKey = "";
+            cachedData = [parsed];
+            storeJsonData(syntheticName, cachedData);
+            updateJsonUI(syntheticName, 1);
+            showRootKeyPicker(false);
+            populateAutocomplete();
+            closeJsonPasteModal();
+            showToast("✓ Loaded 1 record (single object) from paste");
+          } else if (arrayKeys.length === 1) {
+            selectedRootKey = arrayKeys[0];
+            cachedData = parsed[selectedRootKey];
+            storeJsonData(syntheticName, cachedData);
+            try { localStorage.setItem(JSON_ROOTKEY_KEY, selectedRootKey); } catch (_) {}
+            updateJsonUI(syntheticName, cachedData.length);
+            showRootKeyPicker(false);
+            populateAutocomplete();
+            closeJsonPasteModal();
+            showToast(`✓ Auto-selected key "${selectedRootKey}" — ${cachedData.length} records`);
+          } else {
+            buildRootKeyPicker(arrayKeys, parsed);
+            updateJsonUI(syntheticName, 0, true);
+            closeJsonPasteModal();
+            showToast("Nested JSON — pick which array to use");
+          }
+        } else {
+          ta.classList.add("error");
+          errEl.textContent = "⚠ Unrecognised JSON structure — expected an array or object.";
+          errEl.classList.add("visible");
+        }
+      }
+
+      // ─── SHAREABLE URL ────────────────────────────────────────────────────────────
+      function shareCurrentConfig() {
+        const config = buildConfig();
+        let encoded;
+        try {
+          encoded = btoa(unescape(encodeURIComponent(JSON.stringify(config))));
+        } catch (e) {
+          showToast("⚠ Could not encode config");
+          return;
+        }
+        const url = `${location.href.split("#")[0]}#cfg=${encoded}`;
+        const input = document.getElementById("shareUrlInput");
+        input.value = url;
+        document.getElementById("shareUrlRow").classList.add("visible");
+        input.select();
+      }
+
+      function copyShareUrl() {
+        const url = document.getElementById("shareUrlInput").value;
+        navigator.clipboard.writeText(url).then(() => {
+          showToast("✓ Share URL copied to clipboard");
+        });
+      }
+
+      function openLoadUrl() {
+        const row = document.getElementById("loadUrlRow");
+        row.classList.add("visible");
+        const input = document.getElementById("loadUrlInput");
+        input.value = "";
+        input.focus();
+      }
+
+      function closeLoadUrl() {
+        document.getElementById("loadUrlRow").classList.remove("visible");
+        document.getElementById("loadUrlInput").value = "";
+      }
+
+      function applyLoadUrl() {
+        const raw = document.getElementById("loadUrlInput").value.trim();
+        if (!raw) { showToast("⚠ Paste a URL first"); return; }
+
+        // Extract the #cfg= fragment — works whether they paste the full URL or just the fragment
+        let encoded = "";
+        const hashIdx = raw.indexOf("#cfg=");
+        if (hashIdx !== -1) {
+          encoded = raw.slice(hashIdx + 5);
+        } else if (!raw.includes("#") && !raw.includes("/") && !raw.includes("?")) {
+          // They may have pasted just the base64 string itself
+          encoded = raw;
+        }
+
+        if (!encoded) {
+          showToast("⚠ No config found in that URL");
+          return;
+        }
+
+        try {
+          const json = decodeURIComponent(escape(atob(encoded)));
+          const config = JSON.parse(json);
+          document.getElementById("childContainer").innerHTML = "";
+          applyConfig(config);
+          closeLoadUrl();
+          showToast("✓ Configuration loaded from URL");
+        } catch (e) {
+          showToast("⚠ Could not read config — invalid or corrupted URL");
+          console.warn("Load URL error:", e);
+        }
+      }
+
+      function loadConfigFromUrl() {
+        const hash = location.hash;
+        if (!hash.startsWith("#cfg=")) return;
+        try {
+          const encoded = hash.slice(5);
+          const json = decodeURIComponent(escape(atob(encoded)));
+          const config = JSON.parse(json);
+          // Clear default empty row first
+          document.getElementById("childContainer").innerHTML = "";
+          applyConfig(config);
+          // Clean the URL so refreshing doesn't re-apply
+          history.replaceState(null, "", location.pathname + location.search);
+          showToast("✓ Configuration loaded from shared URL");
+        } catch (e) {
+          console.warn("Could not load config from URL:", e);
+        }
+      }
+
+      // ─── INIT ─────────────────────────────────────────────────────────────────────
+      window.onload = () => {
+        loadStoredJson();
+        renderPresets();
+        if (location.hash.startsWith("#cfg=")) {
+          loadConfigFromUrl();
+        } else {
+          addChildRow();
+        }
+        document
+          .getElementById("savePresetName")
+          .addEventListener("keydown", (e) => {
+            if (e.key === "Enter") savePresetFromInput();
+          });
+        document
+          .getElementById("loadUrlInput")
+          .addEventListener("keydown", (e) => {
+            if (e.key === "Enter") applyLoadUrl();
+            if (e.key === "Escape") closeLoadUrl();
+          });
+      };
+    </script>
+  </body>
+</html>

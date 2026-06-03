@@ -1,0 +1,22 @@
+{
+  "OmNamoBhagavatheVasudevaya": {
+    "rootKey": "",
+    "children": [
+      {
+        "type": "row",
+        "tag": "",
+        "fixed": "",
+        "jsonKey": "",
+        "skip": false,
+        "skipIfKey": "",
+        "skipIfValue": "",
+        "tagMode": "both",
+        "repeat": false,
+        "repeatKey": "",
+        "prefix": "",
+        "suffix": "",
+        "attrs": []
+      }
+    ]
+  }
+}

@@ -1,0 +1,2481 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>XML Cleaner</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;1,9..144,300&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      :root {
+        --bg: #f4f6f9;
+        --s1: #ffffff;
+        --s2: #f0f2f5;
+        --s3: #e4e8ef;
+        --border: #d0d7e2;
+        --border2: #b8c2d4;
+        --lime: #3a8c00;
+        --lime2: #2f7200;
+        --lime-bg: #3a8c0014;
+        --text: #1a2030;
+        --muted: #6b7a96;
+        --muted2: #9aa3b5;
+        --red: #d93636;
+        --blue: #1a6fd4;
+        --mono: "JetBrains Mono", monospace;
+        --serif: "Fraunces", serif;
+        --r: 8px;
+        --r2: 12px;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: var(--mono);
+        min-height: 100vh;
+        font-size: 14px;
+      }
+      .app {
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        min-height: 100vh;
+      }
+      .sidebar {
+        background: var(--s1);
+        border-right: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow: hidden;
+      }
+      .main {
+        display: flex;
+        flex-direction: column;
+        padding: 2rem;
+        gap: 1.5rem;
+        min-width: 0;
+      }
+      .header {
+        padding: 1.5rem 1.25rem 1rem;
+        border-bottom: 1px solid var(--border);
+      }
+      .header h1 {
+        font-family: var(--serif);
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: var(--lime);
+        letter-spacing: -0.02em;
+        line-height: 1;
+      }
+      .header p {
+        font-size: 10px;
+        color: var(--muted);
+        margin-top: 4px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+      .steps-header {
+        padding: 0.75rem 1.25rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 10px;
+        color: var(--muted);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        border-bottom: 1px solid var(--border);
+      }
+      .steps-header button {
+        font-family: var(--mono);
+        font-size: 10px;
+        color: var(--muted);
+        background: none;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 3px 8px;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .steps-header button:hover {
+        color: var(--text);
+        border-color: var(--border2);
+      }
+      .steps-list {
+        flex: 1;
+        overflow-y: auto;
+        padding: 0.75rem;
+      }
+      .steps-list::-webkit-scrollbar {
+        width: 4px;
+      }
+      .steps-list::-webkit-scrollbar-thumb {
+        background: var(--border2);
+        border-radius: 2px;
+      }
+      .step-item {
+        background: var(--s2);
+        border: 1px solid var(--border);
+        border-radius: var(--r);
+        margin-bottom: 8px;
+        transition: all 0.2s;
+        cursor: default;
+      }
+      .step-item.enabled {
+        border-color: var(--border2);
+      }
+      .step-item.dragging {
+        opacity: 0.4;
+        transform: scale(0.97);
+      }
+      .step-item.drag-over {
+        border-color: var(--lime);
+        box-shadow: 0 0 0 1px var(--lime);
+      }
+      .step-top {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 12px;
+      }
+      .step-drag {
+        cursor: grab;
+        color: var(--muted2);
+        font-size: 12px;
+        user-select: none;
+        flex-shrink: 0;
+      }
+      .step-drag:active {
+        cursor: grabbing;
+      }
+      .step-dup {
+        flex-shrink: 0;
+        width: 20px;
+        height: 20px;
+        border-radius: 4px;
+        border: 1px solid var(--border);
+        background: var(--s3);
+        color: var(--muted2);
+        font-size: 13px;
+        line-height: 1;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--mono);
+        transition: all 0.15s;
+      }
+      .step-dup:hover {
+        color: var(--lime);
+        border-color: var(--lime);
+      }
+      .step-num {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: var(--s3);
+        border: 1px solid var(--border2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        color: var(--muted);
+        flex-shrink: 0;
+        transition: all 0.2s;
+      }
+      .step-item.enabled .step-num {
+        background: var(--lime-bg);
+        border-color: var(--lime2);
+        color: var(--lime);
+      }
+      .step-label {
+        flex: 1;
+        font-size: 12px;
+        font-weight: 500;
+        color: var(--muted);
+      }
+      .step-item.enabled .step-label {
+        color: var(--text);
+      }
+      .step-toggle {
+        width: 32px;
+        height: 18px;
+        border-radius: 9px;
+        background: var(--s3);
+        border: 1px solid var(--border2);
+        cursor: pointer;
+        position: relative;
+        transition: all 0.2s;
+        flex-shrink: 0;
+      }
+      .step-toggle.on {
+        background: var(--lime);
+        border-color: var(--lime);
+      }
+      .step-toggle::after {
+        content: "";
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--muted2);
+        transition: all 0.2s;
+      }
+      .step-toggle.on::after {
+        background: #ffffff;
+        left: 16px;
+      }
+      .step-body {
+        padding: 0 12px 12px;
+        display: none;
+      }
+      .step-item.enabled .step-body {
+        display: block;
+      }
+      .step-field {
+        margin-bottom: 8px;
+      }
+      .step-field:last-child {
+        margin-bottom: 0;
+      }
+      .step-field label {
+        font-size: 10px;
+        color: var(--muted);
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        display: block;
+        margin-bottom: 4px;
+      }
+      .step-field input {
+        width: 100%;
+        background: var(--s3);
+        border: 1px solid var(--border);
+        border-radius: 5px;
+        padding: 7px 10px;
+        color: var(--text);
+        font-family: var(--mono);
+        font-size: 12px;
+        outline: none;
+        transition: border-color 0.15s;
+      }
+      .step-field input:focus {
+        border-color: var(--lime2);
+      }
+      .step-field input::placeholder {
+        color: var(--muted2);
+      }
+      .step-field select {
+        width: 100%;
+        background: var(--s3);
+        border: 1px solid var(--border);
+        border-radius: 5px;
+        padding: 7px 10px;
+        color: var(--text);
+        font-family: var(--mono);
+        font-size: 12px;
+        outline: none;
+        cursor: pointer;
+        transition: border-color 0.15s;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%236b7a96'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        padding-right: 28px;
+      }
+      .step-field select:focus {
+        border-color: var(--lime2);
+      }
+      .multi-row {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin-bottom: 5px;
+      }
+      .multi-row input {
+        flex: 1;
+        margin-bottom: 0 !important;
+      }
+      .multi-del {
+        flex-shrink: 0;
+        width: 22px;
+        height: 22px;
+        border-radius: 4px;
+        border: 1px solid var(--border);
+        background: var(--s3);
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: var(--mono);
+        transition: all 0.15s;
+      }
+      .multi-del:hover {
+        color: var(--red);
+        border-color: var(--red);
+      }
+      .multi-add {
+        font-family: var(--mono);
+        font-size: 10px;
+        padding: 4px 10px;
+        border-radius: 4px;
+        border: 1px dashed var(--border2);
+        background: transparent;
+        color: var(--muted);
+        cursor: pointer;
+        transition: all 0.15s;
+        margin-top: 2px;
+      }
+      .multi-add:hover {
+        color: var(--lime);
+        border-color: var(--lime);
+      }
+      .placement-toggle {
+        flex-shrink: 0;
+        width: 30px;
+        height: 22px;
+        border-radius: 4px;
+        border: 1px solid var(--border2);
+        background: var(--s3);
+        color: var(--muted);
+        font-size: 9px;
+        font-family: var(--mono);
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        cursor: pointer;
+        transition: all 0.15s;
+        text-transform: uppercase;
+      }
+      .placement-toggle.inside {
+        background: var(--lime-bg);
+        border-color: var(--lime2);
+        color: var(--lime);
+      }
+      .presets-section {
+        border-top: 1px solid var(--border);
+        padding: 0.75rem;
+      }
+      .presets-header {
+        font-size: 10px;
+        color: var(--muted);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        margin-bottom: 8px;
+      }
+      .preset-list {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        max-height: 130px;
+        overflow-y: auto;
+        margin-bottom: 8px;
+      }
+      .preset-list::-webkit-scrollbar {
+        width: 3px;
+      }
+      .preset-list::-webkit-scrollbar-thumb {
+        background: var(--border2);
+        border-radius: 2px;
+      }
+      .preset-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 10px;
+        background: var(--s2);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .preset-item:hover {
+        border-color: var(--border2);
+        background: var(--s3);
+      }
+      .preset-name {
+        flex: 1;
+        font-size: 11px;
+        color: var(--text);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .preset-del {
+        font-size: 14px;
+        color: var(--muted2);
+        cursor: pointer;
+        line-height: 1;
+        flex-shrink: 0;
+      }
+      .preset-del:hover {
+        color: var(--red);
+      }
+      .preset-actions {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+      .btn-xs {
+        font-family: var(--mono);
+        font-size: 10px;
+        padding: 5px 10px;
+        border-radius: 5px;
+        border: 1px solid var(--border2);
+        background: var(--s2);
+        color: var(--muted);
+        cursor: pointer;
+        transition: all 0.15s;
+        letter-spacing: 0.02em;
+      }
+      .btn-xs:hover {
+        color: var(--text);
+        border-color: #b8c2d4;
+      }
+      .btn-xs.accent {
+        border-color: var(--lime2);
+        color: var(--lime);
+        background: var(--lime-bg);
+      }
+      .btn-xs.accent:hover {
+        background: #3a8c0018;
+      }
+      .io-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+      }
+      .io-label {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+      }
+      .io-label span {
+        font-size: 10px;
+        color: var(--muted);
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+      .io-label-actions {
+        display: flex;
+        gap: 6px;
+      }
+      textarea {
+        width: 100%;
+        height: 320px;
+        background: var(--s1);
+        border: 1px solid var(--border);
+        border-radius: var(--r);
+        padding: 14px;
+        color: var(--text);
+        font-family: var(--mono);
+        font-size: 12.5px;
+        line-height: 1.7;
+        resize: vertical;
+        outline: none;
+        transition: border-color 0.15s;
+      }
+      textarea:focus {
+        border-color: var(--border2);
+      }
+      textarea[readonly] {
+        color: #2d7a00;
+        background: var(--s2);
+      }
+      textarea::placeholder {
+        color: var(--muted2);
+      }
+      .size-bar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 10px;
+        color: var(--muted);
+        margin-top: 5px;
+      }
+      .size-bar b {
+        color: var(--text);
+      }
+      .run-bar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 1rem 1.25rem;
+        background: var(--s1);
+        border: 1px solid var(--border);
+        border-radius: var(--r2);
+        flex-wrap: wrap;
+      }
+      .btn-run {
+        font-family: var(--mono);
+        font-size: 13px;
+        font-weight: 500;
+        padding: 10px 28px;
+        background: var(--lime);
+        color: #ffffff;
+        border: none;
+        border-radius: var(--r);
+        cursor: pointer;
+        letter-spacing: 0.02em;
+        transition: all 0.15s;
+      }
+      .btn-run:hover {
+        background: var(--lime2);
+        transform: translateY(-1px);
+      }
+      .btn-run:active {
+        transform: translateY(0) scale(0.98);
+      }
+      .btn-run:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+      }
+      .btn-sec {
+        font-family: var(--mono);
+        font-size: 12px;
+        padding: 9px 16px;
+        background: transparent;
+        color: var(--muted);
+        border: 1px solid var(--border2);
+        border-radius: var(--r);
+        cursor: pointer;
+        transition: all 0.15s;
+        letter-spacing: 0.02em;
+      }
+      .btn-sec:hover {
+        color: var(--text);
+        border-color: #b8c2d4;
+      }
+      .status-msg {
+        font-size: 11px;
+        color: var(--muted);
+        margin-left: auto;
+      }
+      .status-msg.ok {
+        color: var(--lime);
+      }
+      .status-msg.err {
+        color: var(--red);
+      }
+      .progress-wrap {
+        width: 100%;
+        display: none;
+      }
+      .progress-wrap.active {
+        display: block;
+      }
+      .progress-track {
+        height: 3px;
+        background: var(--s3);
+        border-radius: 2px;
+        overflow: hidden;
+      }
+      .progress-fill {
+        height: 100%;
+        background: var(--lime);
+        width: 0%;
+        transition: width 0.3s;
+        border-radius: 2px;
+      }
+      .progress-label {
+        font-size: 10px;
+        color: var(--muted);
+        margin-top: 4px;
+      }
+      .pipeline-preview {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 0.75rem 1rem;
+        background: var(--s2);
+        border: 1px solid var(--border);
+        border-radius: var(--r);
+        flex-wrap: wrap;
+      }
+      .pipe-label {
+        font-size: 10px;
+        color: var(--muted);
+        letter-spacing: 0.04em;
+        margin-right: 2px;
+        text-transform: uppercase;
+      }
+      .pipe-step {
+        font-size: 10px;
+        padding: 3px 10px;
+        border-radius: 20px;
+        background: var(--lime-bg);
+        border: 1px solid var(--lime2);
+        color: var(--lime);
+        letter-spacing: 0.03em;
+        cursor: pointer;
+        transition: background 0.15s;
+      }
+      .pipe-step:hover {
+        background: #3a8c0018;
+      }
+      .step-preview-modal {
+        position: fixed;
+        inset: 0;
+        background: #00000044;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 200;
+        backdrop-filter: blur(3px);
+      }
+      .step-preview-modal.open {
+        display: flex;
+      }
+      .step-preview-box {
+        background: var(--s2);
+        border: 1px solid var(--border2);
+        border-radius: var(--r2);
+        padding: 1.5rem;
+        width: min(720px, 92vw);
+        max-height: 80vh;
+        display: flex;
+        flex-direction: column;
+        animation: modalin 0.18s ease;
+      }
+      .step-preview-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+      }
+      .step-preview-header h3 {
+        font-family: var(--serif);
+        font-size: 1rem;
+        color: var(--text);
+        font-weight: 600;
+      }
+      .step-preview-close {
+        background: none;
+        border: none;
+        color: var(--muted);
+        font-size: 18px;
+        cursor: pointer;
+        line-height: 1;
+      }
+      .step-preview-close:hover {
+        color: var(--text);
+      }
+      .step-preview-ta {
+        flex: 1;
+        min-height: 260px;
+        background: var(--s1);
+        border: 1px solid var(--border);
+        border-radius: var(--r);
+        padding: 14px;
+        color: #2d7a00;
+        font-family: var(--mono);
+        font-size: 12px;
+        line-height: 1.7;
+        resize: none;
+        outline: none;
+        overflow: auto;
+        white-space: pre;
+      }
+      .step-preview-meta {
+        font-size: 10px;
+        color: var(--muted);
+        margin-top: 6px;
+      }
+      .pipe-arrow {
+        color: var(--muted2);
+        font-size: 12px;
+      }
+      .pipe-empty {
+        font-size: 11px;
+        color: var(--muted2);
+        font-style: italic;
+      }
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: #00000080;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+        backdrop-filter: blur(2px);
+      }
+      .modal-overlay.open {
+        display: flex;
+      }
+      .modal {
+        background: var(--s2);
+        border: 1px solid var(--border2);
+        border-radius: var(--r2);
+        padding: 1.5rem;
+        width: 340px;
+        animation: modalin 0.18s ease;
+      }
+      @keyframes modalin {
+        from {
+          opacity: 0;
+          transform: scale(0.96);
+        }
+        to {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+      .modal h3 {
+        font-family: var(--serif);
+        font-size: 1.1rem;
+        color: var(--text);
+        margin-bottom: 1rem;
+        font-weight: 600;
+      }
+      .modal input {
+        width: 100%;
+        background: var(--s3);
+        border: 1px solid var(--border2);
+        border-radius: 6px;
+        padding: 9px 12px;
+        color: var(--text);
+        font-family: var(--mono);
+        font-size: 13px;
+        outline: none;
+        margin-bottom: 1rem;
+      }
+      .modal input:focus {
+        border-color: var(--lime2);
+      }
+      .modal-btns {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+      }
+      .modal-btns button {
+        font-family: var(--mono);
+        font-size: 12px;
+        padding: 8px 18px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.15s;
+      }
+      .btn-cancel {
+        background: transparent;
+        border: 1px solid var(--border2);
+        color: var(--muted);
+      }
+      .btn-cancel:hover {
+        color: var(--text);
+      }
+      .btn-save {
+        background: var(--lime);
+        border: none;
+        color: #0a1400;
+        font-weight: 500;
+      }
+      .btn-save:hover {
+        background: var(--lime2);
+      }
+      /* fix badge */
+      .fix-badge {
+        display: inline-block;
+        font-size: 9px;
+        padding: 1px 6px;
+        border-radius: 3px;
+        background: #3a8c0018;
+        border: 1px solid var(--lime2);
+        color: var(--lime);
+        margin-left: 6px;
+        vertical-align: middle;
+        letter-spacing: 0.04em;
+      }
+      @media (max-width: 860px) {
+        .app {
+          grid-template-columns: 1fr;
+        }
+        .sidebar {
+          position: static;
+          height: auto;
+        }
+        .io-row {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar">
+        <div class="header">
+          <h1>XML Cleaner</h1>
+          <p>pipeline editor · v3 skip count</p>
+        </div>
+        <div class="steps-header">
+          <span>Pipeline Steps</span>
+          <button onclick="resetOrder()">Reset Order</button>
+        </div>
+        <div class="steps-list" id="steps-list"></div>
+        <div class="presets-section">
+          <div class="presets-header"><span>Presets</span></div>
+          <div class="preset-list" id="preset-list"></div>
+          <div class="preset-actions">
+            <button class="btn-xs accent" onclick="openSavePreset()">
+              + Save current
+            </button>
+            <button class="btn-xs" onclick="exportPresets()">
+              Export JSON
+            </button>
+            <button class="btn-xs" onclick="importPresetsClick()">
+              Import JSON
+            </button>
+          </div>
+          <input
+            type="file"
+            id="import-file"
+            accept=".json"
+            style="display: none"
+            onchange="importPresetsFile(event)"
+          />
+        </div>
+      </aside>
+
+      <main class="main">
+        <div class="pipeline-preview" id="pipeline-preview">
+          <span class="pipe-label">Pipeline →</span>
+          <span class="pipe-empty"
+            >Enable steps in the sidebar to build your pipeline</span
+          >
+        </div>
+        <div class="io-row">
+          <div class="io-box">
+            <div class="io-label">
+              <span>Input XML</span>
+              <div class="io-label-actions">
+                <button class="btn-xs accent" onclick="document.getElementById('load-file-input').click()">↑ Load File</button>
+                <button class="btn-xs" onclick="clearInput()">Clear</button>
+                <button class="btn-xs" onclick="loadSample()">Sample</button>
+              </div>
+            </div>
+            <input
+              type="file"
+              id="load-file-input"
+              accept=".xml,.txt,.html,.htm,.json,.csv,.xsd,.xslt,.svg,.xhtml"
+              style="display:none"
+              onchange="loadFileIntoInput(event)"
+            />
+            <textarea
+              id="xml-input"
+              placeholder="Paste your XML here, or use ↑ Load File to open a file from your computer..."
+              oninput="updateSizeInfo()"
+            ></textarea>
+            <div class="size-bar">
+              <b id="input-size">0 B</b> &nbsp;·&nbsp;
+              <b id="input-lines">0</b> lines
+            </div>
+          </div>
+          <div class="io-box">
+            <div class="io-label">
+              <span>Output</span>
+              <div class="io-label-actions">
+                <button class="btn-xs" id="copy-btn" onclick="copyOutput()">
+                  Copy
+                </button>
+                <button class="btn-xs" onclick="downloadOutput()">
+                  Download
+                </button>
+                <button class="btn-xs" onclick="useAsInput()">
+                  → Use as Input
+                </button>
+              </div>
+            </div>
+            <textarea
+              id="xml-output"
+              readonly
+              placeholder="Output appears here after running the pipeline..."
+            ></textarea>
+            <div class="size-bar">
+              <b id="output-size">0 B</b> &nbsp;·&nbsp;
+              <b id="output-lines">0</b> lines
+            </div>
+          </div>
+        </div>
+        <div class="run-bar">
+          <button class="btn-run" id="run-btn" onclick="runPipeline()">
+            ▶ Run Pipeline
+          </button>
+          <button class="btn-sec" onclick="clearAll()">Clear All</button>
+          <button class="btn-sec" onclick="exportConfig()">
+            Export Config
+          </button>
+          <div class="progress-wrap" id="progress-wrap">
+            <div class="progress-track">
+              <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <div class="progress-label" id="progress-label"></div>
+          </div>
+          <span class="status-msg" id="status-msg"></span>
+        </div>
+      </main>
+    </div>
+
+    <div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+      <div class="modal">
+        <h3>Save Preset</h3>
+        <input
+          type="text"
+          id="preset-name-input"
+          placeholder="Preset name..."
+          maxlength="40"
+          onkeydown="if (event.key === 'Enter') savePreset();"
+        />
+        <div class="modal-btns">
+          <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+          <button class="btn-save" onclick="savePreset()">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="step-preview-modal"
+      id="step-preview-modal"
+      onclick="closeStepPreview(event)"
+    >
+      <div class="step-preview-box">
+        <div class="step-preview-header">
+          <h3 id="step-preview-title">Step Preview</h3>
+          <button class="step-preview-close" onclick="closeStepPreview()">
+            ×
+          </button>
+        </div>
+        <textarea
+          class="step-preview-ta"
+          id="step-preview-ta"
+          readonly
+        ></textarea>
+        <div class="step-preview-meta" id="step-preview-meta"></div>
+      </div>
+    </div>
+
+    <script>
+      const STORAGE_KEY = "xmlcleaner_v6";
+
+      let _instanceCounter = 100; // start above number of default steps
+      function newInstanceId(baseId) {
+        return baseId + "_" + (++_instanceCounter);
+      }
+
+      const DEFAULT_STEPS = [
+        {
+          id: "extract",
+          instanceId: "extract_1",
+          label: "Extract Tag Range",
+          enabled: false,
+          config: { openTag: "", closeTag: "" },
+          fields: [
+            { key: "openTag", label: "Opening tag", placeholder: "e.g. root" },
+            { key: "closeTag", label: "Closing tag", placeholder: "e.g. root" },
+          ],
+        },
+        {
+          id: "nested",
+          instanceId: "nested_2",
+          label: "Wrap Blocks in Tag",
+          enabled: false,
+          config: { wrapTag: "", openTag: "", closeTag: "", skipCount: "0" },
+          fields: [
+            {
+              key: "wrapTag",
+              label: "Wrapper tag name",
+              placeholder: "e.g. STOCKITEM",
+            },
+            {
+              key: "openTag",
+              label: "Opening tag (block start)",
+              placeholder: "e.g. A",
+            },
+            {
+              key: "closeTag",
+              label: "Closing tag (block end)",
+              placeholder: "e.g. BCA",
+            },
+            {
+              key: "skipCount",
+              label:
+                "Skip N inner closing tags (0 = wrap at first, 1 = skip one nested close first)",
+              placeholder: "e.g. 0",
+            },
+          ],
+        },
+        {
+          id: "attrs",
+          instanceId: "attrs_3",
+          label: "Remove Tag Attributes",
+          enabled: false,
+          config: { specificList: [] },
+          fields: [
+            {
+              key: "specificList",
+              label: "Attribute to remove (leave empty to remove all)",
+              placeholder: "e.g. lang",
+              multi: true,
+            },
+          ],
+        },
+        {
+          id: "attrextract",
+          instanceId: "attrextract_4",
+          label: "Attributes to Child Tags",
+          enabled: false,
+          config: { ruleList: [{ rule: "", placement: "inside" }] },
+          fields: [
+            {
+              key: "ruleList",
+              label: "Rule: attrName or attrName:CustomTagName",
+              placeholder: "e.g. TYPE:TYPEOF",
+              multi: true,
+              multiType: "rule-placement",
+            },
+          ],
+        },
+        {
+          id: "special",
+          instanceId: "special_5",
+          label: "Remove Text Chunks",
+          enabled: false,
+          config: { patternList: [""] },
+          fields: [
+            {
+              key: "patternList",
+              label: "Text / pattern to remove (use * as wildcard)",
+              placeholder: "e.g. &#4; or foo* or hello",
+              multi: true,
+            },
+          ],
+        },
+        {
+          id: "xml2json",
+          instanceId: "xml2json_6",
+          label: "XML → JSON",
+          enabled: false,
+          config: {},
+          fields: [],
+        },
+        {
+          id: "nsstrip",
+          instanceId: "nsstrip_7",
+          label: "Remove Prefixes",
+          enabled: false,
+          config: { specificList: [] },
+          fields: [
+            {
+              key: "specificList",
+              label: "Namespace prefix to remove (leave empty to remove all)",
+              placeholder: "e.g. soap",
+              multi: true,
+            },
+          ],
+        },
+        {
+          id: "tagunwrap",
+          instanceId: "tagunwrap_8",
+          label: "Remove Tag Keep Content",
+          enabled: false,
+          config: { tagList: [""] },
+          fields: [
+            {
+              key: "tagList",
+              label: "Tag to remove (keep its content)",
+              placeholder: "e.g. B",
+              multi: true,
+            },
+          ],
+        },
+        {
+          id: "tagnrename",
+          instanceId: "tagnrename_9",
+          label: "Rename Tag",
+          enabled: false,
+          config: { pairList: [""] },
+          fields: [
+            {
+              key: "pairList",
+              label: "Rename pair: OldTag:NewTag",
+              placeholder: "e.g. Price:Cost",
+              multi: true,
+            },
+          ],
+        },
+        {
+          id: "tagwipe",
+          instanceId: "tagwipe_10",
+          label: "Delete Tag and Content",
+          enabled: false,
+          config: { tagList: [""] },
+          fields: [
+            {
+              key: "tagList",
+              label: "Tag to delete (with its content)",
+              placeholder: "e.g. Price",
+              multi: true,
+            },
+          ],
+        },
+        {
+          id: "emptystrip",
+          instanceId: "emptystrip_11",
+          label: "Remove Empty Tags",
+          enabled: false,
+          config: {},
+          fields: [],
+        },
+      ];
+
+      let state = loadState();
+
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) {
+            const saved = JSON.parse(raw);
+            // Restore full pipeline if saved (supports duplicates)
+            if (saved.steps && saved.steps.length) {
+              // Sync counter past any saved instanceIds
+              saved.steps.forEach((s) => {
+                const m = s.instanceId && s.instanceId.match(/_(\d+)$/);
+                if (m) _instanceCounter = Math.max(_instanceCounter, parseInt(m[1], 10));
+              });
+              return {
+                steps: saved.steps.map((s) => {
+                  // Find the DEFAULT_STEPS definition to get fields
+                  const def = DEFAULT_STEPS.find((d) => d.id === s.id);
+                  return {
+                    ...(def || {}),
+                    ...s,
+                    config: { ...(def ? def.config : {}), ...(s.config || {}) },
+                    instanceId: s.instanceId || newInstanceId(s.id),
+                  };
+                }),
+                presets: saved.presets || [],
+              };
+            }
+            return {
+              steps: DEFAULT_STEPS.map((s) => ({ ...s, config: { ...s.config } })),
+              presets: saved.presets || [],
+            };
+          }
+        } catch (e) {}
+        return {
+          steps: DEFAULT_STEPS.map((s) => ({ ...s, config: { ...s.config } })),
+          presets: [],
+        };
+      }
+
+      function saveState() {
+        try {
+          localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify({
+              steps: state.steps.map((s) => ({
+                id: s.id,
+                instanceId: s.instanceId,
+                label: s.label,
+                enabled: s.enabled,
+                config: { ...s.config },
+              })),
+              presets: state.presets,
+            }),
+          );
+        } catch (e) {}
+      }
+
+      // ─── SIDEBAR ───
+      let dragSrc = null;
+
+      function renderSidebar() {
+        const list = document.getElementById("steps-list");
+        list.innerHTML = "";
+        // Count instances per base id to show badge
+        const idCount = {};
+        state.steps.forEach((s) => { idCount[s.id] = (idCount[s.id] || 0) + 1; });
+        const idSeen = {};
+        state.steps.forEach((step, idx) => {
+          const iid = step.instanceId;
+          idSeen[step.id] = (idSeen[step.id] || 0) + 1;
+          const copyBadge = idCount[step.id] > 1 ? ` <span style="font-size:9px;color:var(--muted2)">#${idSeen[step.id]}</span>` : "";
+          const item = document.createElement("div");
+          item.className = "step-item" + (step.enabled ? " enabled" : "");
+          item.draggable = true;
+          item.dataset.iid = iid;
+
+          const fieldsHtml = step.fields
+            .map((f) => {
+              if (f.multi) {
+                const rawList = Array.isArray(step.config[f.key])
+                  ? step.config[f.key]
+                  : [""];
+
+                if (f.multiType === "rule-placement") {
+                  const rows = rawList.map((item, ri) => {
+                    const ruleVal = (typeof item === "object" ? item.rule : item) || "";
+                    const placement = (typeof item === "object" ? item.placement : "outside") || "outside";
+                    return `
+                    <div class="multi-row" data-iid="${iid}" data-key="${f.key}" data-idx="${ri}">
+                      <input type="text" value="${escHtml(ruleVal)}"
+                        placeholder="${f.placeholder}"
+                        data-iid="${iid}" data-key="${f.key}" data-idx="${ri}" data-subkey="rule"
+                        oninput="onRulePlacementChange(this)"/>
+                      <button class="placement-toggle ${placement === "inside" ? "inside" : ""}"
+                        data-iid="${iid}" data-key="${f.key}" data-idx="${ri}"
+                        onclick="togglePlacement('${iid}','${f.key}',${ri})"
+                        title="${placement === "inside" ? "Inside element" : "Outside (sibling)"}"
+                      >${placement === "inside" ? "in" : "out"}</button>
+                      <button class="multi-del" onclick="removeMultiRow('${iid}','${f.key}',${ri})" title="Remove">×</button>
+                    </div>`;
+                  }).join("");
+                  return `
+                  <div class="step-field">
+                    <label>${f.label}</label>
+                    ${rows}
+                    <button class="multi-add" onclick="addMultiRow('${iid}','${f.key}')">+ Add</button>
+                  </div>`;
+                }
+
+                const rows = rawList
+                  .map(
+                    (val, ri) => `
+                  <div class="multi-row" data-iid="${iid}" data-key="${f.key}" data-idx="${ri}">
+                    <input type="text" value="${escHtml(val)}"
+                      placeholder="${f.placeholder}"
+                      data-iid="${iid}" data-key="${f.key}" data-idx="${ri}"
+                      oninput="onMultiFieldChange(this)"/>
+                    <button class="multi-del" onclick="removeMultiRow('${iid}','${f.key}',${ri})" title="Remove">×</button>
+                  </div>`,
+                  )
+                  .join("");
+                return `
+                <div class="step-field">
+                  <label>${f.label}</label>
+                  ${rows}
+                  <button class="multi-add" onclick="addMultiRow('${iid}','${f.key}')">+ Add</button>
+                </div>`;
+              }
+              if (f.type === "select") {
+                const cur = step.config[f.key] || f.options[0].value;
+                const opts = f.options.map(o =>
+                  `<option value="${o.value}"${cur === o.value ? " selected" : ""}>${o.label}</option>`
+                ).join("");
+                return `
+                <div class="step-field">
+                  <label>${f.label}</label>
+                  <select data-iid="${iid}" data-key="${f.key}"
+                    onchange="onFieldChange(this)">${opts}</select>
+                </div>`;
+              }
+              return `
+              <div class="step-field">
+                <label>${f.label}</label>
+                <input type="text" value="${escHtml(step.config[f.key] || "")}"
+                  placeholder="${f.placeholder}"
+                  data-iid="${iid}" data-key="${f.key}"
+                  oninput="onFieldChange(this)"/>
+              </div>`;
+            })
+            .join("");
+
+          item.innerHTML = `
+            <div class="step-top">
+              <span class="step-drag" title="Drag to reorder">⠿</span>
+              <div class="step-num">${idx + 1}</div>
+              <span class="step-label">${step.label}${copyBadge}</span>
+              <button class="step-dup" onclick="duplicateStep('${iid}')" title="Duplicate this step">⊕</button>
+              <div class="step-toggle ${step.enabled ? "on" : ""}" onclick="toggleStep('${iid}')"></div>
+            </div>
+            ${fieldsHtml ? `<div class="step-body">${fieldsHtml}</div>` : ""}`;
+
+
+          item.addEventListener("dragstart", (e) => {
+            dragSrc = iid;
+            setTimeout(() => item.classList.add("dragging"), 0);
+            e.dataTransfer.effectAllowed = "move";
+          });
+          item.addEventListener("dragend", () =>
+            item.classList.remove("dragging"),
+          );
+          item.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            item.classList.add("drag-over");
+          });
+          item.addEventListener("dragleave", () =>
+            item.classList.remove("drag-over"),
+          );
+          item.addEventListener("drop", (e) => {
+            e.preventDefault();
+            item.classList.remove("drag-over");
+            if (dragSrc === iid) return;
+            const fi = state.steps.findIndex((s) => s.instanceId === dragSrc);
+            const ti = state.steps.findIndex((s) => s.instanceId === iid);
+            const [moved] = state.steps.splice(fi, 1);
+            state.steps.splice(ti, 0, moved);
+            saveState();
+            renderSidebar();
+            renderPipeline();
+          });
+          list.appendChild(item);
+        });
+        renderPresets();
+      }
+
+      function toggleStep(iid) {
+        const s = state.steps.find((s) => s.instanceId === iid);
+        if (s) {
+          s.enabled = !s.enabled;
+          saveState();
+          renderSidebar();
+          renderPipeline();
+        }
+      }
+
+      function duplicateStep(iid) {
+        const idx = state.steps.findIndex((s) => s.instanceId === iid);
+        if (idx === -1) return;
+        const orig = state.steps[idx];
+        const clone = {
+          ...orig,
+          instanceId: newInstanceId(orig.id),
+          enabled: orig.enabled,
+          config: JSON.parse(JSON.stringify(orig.config)),
+        };
+        state.steps.splice(idx + 1, 0, clone);
+        saveState();
+        renderSidebar();
+        renderPipeline();
+      }
+
+      function onFieldChange(el) {
+        const s = state.steps.find((s) => s.instanceId === el.dataset.iid);
+        if (s) {
+          s.config[el.dataset.key] = el.value;
+          saveState();
+        }
+      }
+
+      function onMultiFieldChange(el) {
+        const s = state.steps.find((s) => s.instanceId === el.dataset.iid);
+        if (s) {
+          const list = Array.isArray(s.config[el.dataset.key])
+            ? s.config[el.dataset.key]
+            : [""];
+          list[parseInt(el.dataset.idx, 10)] = el.value;
+          s.config[el.dataset.key] = list;
+          saveState();
+        }
+      }
+
+      function addMultiRow(iid, key) {
+        const s = state.steps.find((s) => s.instanceId === iid);
+        if (!s) return;
+        if (!Array.isArray(s.config[key])) s.config[key] = [];
+        const isObjList = s.config[key].length > 0 && typeof s.config[key][0] === "object";
+        s.config[key].push(isObjList ? { rule: "", placement: "inside" } : "");
+        saveState();
+        renderSidebar();
+        const item = document.querySelector(`[data-iid="${iid}"]`);
+        if (item) {
+          const inputs = item.querySelectorAll(`input[data-key="${key}"]`);
+          if (inputs.length) inputs[inputs.length - 1].focus();
+        }
+      }
+
+      function removeMultiRow(iid, key, idx) {
+        const s = state.steps.find((s) => s.instanceId === iid);
+        if (!s || !Array.isArray(s.config[key])) return;
+        const isObjList = s.config[key].length > 0 && typeof s.config[key][0] === "object";
+        if (s.config[key].length <= 1) {
+          s.config[key] = [isObjList ? { rule: "", placement: "inside" } : ""];
+        } else {
+          s.config[key].splice(idx, 1);
+        }
+        saveState();
+        renderSidebar();
+      }
+
+      function onRulePlacementChange(el) {
+        const s = state.steps.find((s) => s.instanceId === el.dataset.iid);
+        if (!s) return;
+        const list = s.config[el.dataset.key];
+        const idx = parseInt(el.dataset.idx, 10);
+        if (!Array.isArray(list)) return;
+        if (typeof list[idx] !== "object") list[idx] = { rule: "", placement: "inside" };
+        list[idx].rule = el.value;
+        saveState();
+      }
+
+      function togglePlacement(iid, key, idx) {
+        const s = state.steps.find((s) => s.instanceId === iid);
+        if (!s) return;
+        const list = s.config[key];
+        if (!Array.isArray(list)) return;
+        if (typeof list[idx] !== "object") list[idx] = { rule: "", placement: "inside" };
+        list[idx].placement = list[idx].placement === "inside" ? "outside" : "inside";
+        saveState();
+        renderSidebar();
+      }
+
+      function resetOrder() {
+        // Sort instances by their base id's position in DEFAULT_STEPS,
+        // keeping relative order of duplicates within the same base id.
+        const order = DEFAULT_STEPS.map((d) => d.id);
+        state.steps.sort((a, b) => {
+          const ai = order.indexOf(a.id);
+          const bi = order.indexOf(b.id);
+          return ai - bi;
+        });
+        saveState();
+        renderSidebar();
+        renderPipeline();
+      }
+
+      // ─── PIPELINE PREVIEW ───
+      function renderPipeline() {
+        const enabled = state.steps.filter((s) => s.enabled);
+        const el = document.getElementById("pipeline-preview");
+        if (!enabled.length) {
+          el.innerHTML =
+            '<span class="pipe-label">Pipeline →</span><span class="pipe-empty">Enable steps in the sidebar to build your pipeline</span>';
+          return;
+        }
+        // Count how many of each base id appear so we can show #2, #3…
+        const idCount = {};
+        enabled.forEach((s) => { idCount[s.id] = (idCount[s.id] || 0) + 1; });
+        const idSeen = {};
+        let html =
+          '<span class="pipe-label" title="Click a step to preview output up to that point">Pipeline →</span>';
+        enabled.forEach((s, i) => {
+          idSeen[s.id] = (idSeen[s.id] || 0) + 1;
+          const badge = idCount[s.id] > 1 ? ` #${idSeen[s.id]}` : "";
+          html += `<span class="pipe-step" onclick="previewUpToStep(${i})" title="Preview after: ${s.label}${badge}">${s.label}${badge}</span>`;
+          if (i < enabled.length - 1)
+            html += '<span class="pipe-arrow">→</span>';
+        });
+        el.innerHTML = html;
+      }
+
+      async function previewUpToStep(upToIndex) {
+        const input = document.getElementById("xml-input").value;
+        if (!input.trim()) {
+          setStatus("No input to preview", "err");
+          return;
+        }
+        const enabled = state.steps.filter((s) => s.enabled);
+        const slice = enabled.slice(0, upToIndex + 1);
+        let current = input;
+        try {
+          for (const step of slice) {
+            current = runStep(step, current);
+          }
+          document.getElementById("step-preview-title").textContent =
+            `After step ${upToIndex + 1}: ${enabled[upToIndex].label}`;
+          document.getElementById("step-preview-ta").value = current;
+          const lines = current ? current.split("\n").length : 0;
+          const bytes = new Blob([current]).size;
+          document.getElementById("step-preview-meta").textContent =
+            `${fmtSize(bytes)} · ${lines} lines`;
+          document.getElementById("step-preview-modal").classList.add("open");
+        } catch (e) {
+          setStatus("Preview error: " + e.message, "err");
+        }
+      }
+
+      function runStep(step, current) {
+        if (step.id === "extract") return processExtract(current, step.config);
+        if (step.id === "nested")
+          return processNestedWrapper(current, step.config);
+        if (step.id === "attrs") return processAttrs(current, step.config);
+        if (step.id === "attrextract")
+          return processAttrExtract(current, step.config);
+        if (step.id === "special") return processSpecial(current, step.config);
+        if (step.id === "xml2json") return processXmlToJson(current);
+        if (step.id === "nsstrip") return processNsStrip(current, step.config);
+        if (step.id === "tagunwrap")
+          return processTagUnwrap(current, step.config);
+        if (step.id === "tagnrename")
+          return processTagRename(current, step.config);
+        if (step.id === "tagwipe") return processTagWipe(current, step.config);
+        return current;
+      }
+
+      function closeStepPreview(e) {
+        if (!e || e.target === document.getElementById("step-preview-modal"))
+          document
+            .getElementById("step-preview-modal")
+            .classList.remove("open");
+      }
+
+      // ─── HELPERS ───
+      function escRe(str) {
+        return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      }
+      function escHtml(str) {
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      // FIX: shared line-ending normaliser — call at the top of every processor
+      function normaliseLineEndings(str) {
+        return str.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+      }
+
+      // ─── PROCESSORS ───
+
+      // FIX: stack-based extraction — handles nested same-name tags correctly
+      // also normalises line endings first
+      function processExtract(xml, config) {
+        xml = normaliseLineEndings(xml);
+        const open = config.openTag.trim();
+        const close = config.closeTag.trim();
+        if (!open || !close)
+          throw new Error("Tag Extractor: opening and closing tag required");
+
+        const results = [];
+        let i = 0;
+        const openRe = new RegExp(`<${escRe(open)}(?:\\s[^>]*)?>`, "i");
+        const closeRe = new RegExp(`<\\/${escRe(close)}>`, "i");
+
+        while (i < xml.length) {
+          const rest = xml.slice(i);
+          const openMatch = openRe.exec(rest);
+          if (!openMatch) break;
+
+          // FIX: stack — count depth so nested same-name tags don't end early
+          let depth = 1;
+          let start = i + openMatch.index;
+          let pos = start + openMatch[0].length;
+
+          while (pos < xml.length && depth > 0) {
+            const chunk = xml.slice(pos);
+            const nextOpen = openRe.exec(chunk);
+            const nextClose = closeRe.exec(chunk);
+            if (!nextClose) break;
+            const openDist = nextOpen ? nextOpen.index : Infinity;
+            const closeDist = nextClose.index;
+
+            if (openDist < closeDist) {
+              depth++;
+              pos += nextOpen.index + nextOpen[0].length;
+            } else {
+              depth--;
+              pos += nextClose.index + nextClose[0].length;
+            }
+          }
+
+          if (depth === 0) results.push(xml.slice(start, pos).trim());
+          i = pos;
+        }
+
+        if (!results.length)
+          throw new Error(`Tag Extractor: no <${open}> tags found`);
+        return results.join("\n\n");
+      }
+
+      // FIX: normalise line endings + tag boundary guard (?=[\s>\/]) on openTag
+      function processNestedWrapper(xml, config) {
+        // FIX 1: normalise line endings before split so \r doesn't contaminate lines
+        xml = normaliseLineEndings(xml);
+
+        const wrapTag = config.wrapTag.trim();
+        const openTag = config.openTag.trim();
+        const closeTag = config.closeTag.trim();
+        if (!wrapTag || !openTag || !closeTag)
+          throw new Error("Nested Wrapper: all three fields required");
+
+        // skipCount: how many closing tags to skip before treating one as the block end
+        // 0 = wrap at first close (default), 1 = skip one inner close, etc.
+        const skipCount = Math.max(
+          0,
+          parseInt(config.skipCount || "0", 10) || 0,
+        );
+
+        const lines = xml.split("\n");
+        const result = [];
+        let inBlock = false,
+          block = [],
+          count = 0,
+          closesSeen = 0;
+
+        // FIX 2: (?=[\s>\/]) boundary so "A" doesn't match "ABC"
+        const reOpen = new RegExp(`<${escRe(openTag)}(?=[\\s>\\/])`, "i");
+        const reClose = new RegExp(`<\\/${escRe(closeTag)}>`, "i");
+
+        for (const line of lines) {
+          const trimmed = line.trim();
+          const starts = reOpen.test(trimmed);
+          const ends = reClose.test(trimmed);
+          if (!inBlock && starts) {
+            inBlock = true;
+            block = [line];
+            closesSeen = 0;
+            // single-line block that also ends — check skip
+            if (ends) {
+              if (closesSeen >= skipCount) {
+                result.push(`<${wrapTag}>`, ...block, `</${wrapTag}>`);
+                inBlock = false;
+                block = [];
+                count++;
+              } else {
+                closesSeen++;
+              }
+            }
+          } else if (inBlock) {
+            block.push(line);
+            if (ends) {
+              if (closesSeen >= skipCount) {
+                // reached the Nth closing tag — wrap and close
+                result.push(`<${wrapTag}>`, ...block, `</${wrapTag}>`);
+                inBlock = false;
+                block = [];
+                count++;
+              } else {
+                // still inside nested closes — keep accumulating
+                closesSeen++;
+              }
+            }
+          } else {
+            result.push(line);
+          }
+        }
+        if (inBlock && block.length) {
+          result.push(`<${wrapTag}>`, ...block, `</${wrapTag}>`);
+          count++;
+        }
+        if (!count)
+          throw new Error(
+            `Nested Wrapper: no blocks found from <${openTag}> to </${closeTag}>`,
+          );
+        return result.join("\n");
+      }
+
+      function processAttrs(xml, config) {
+        const specific = (
+          Array.isArray(config.specificList)
+            ? config.specificList
+            : ((config.specific || "").split(",")) // backwards compat
+        ).map((s) => s.trim()).filter(Boolean);
+
+        if (!specific.length) {
+          return xml.replace(
+            /<([a-zA-Z][a-zA-Z0-9_:.-]*)\s[^>]*?(\s*\/?)>/g,
+            (match, tag, slash) => `<${tag}${slash}>`,
+          );
+        }
+        let result = xml;
+        for (const attr of specific) {
+          const re = new RegExp(
+            `\\s+${escRe(attr)}\\s*=\\s*(?:"[^"]*"|'[^']*'|[^\\s>]*)`,
+            "gi",
+          );
+          result = result.replace(re, "");
+        }
+        return result;
+      }
+
+      function processAttrExtract(xml, config) {
+        const rawList = (
+          Array.isArray(config.ruleList)
+            ? config.ruleList
+            : ((config.rules || "").split(",")) // backwards compat
+        );
+        // Normalise: items may be plain strings (old) or {rule, placement} objects
+        const rules = rawList
+          .map((item) => {
+            const ruleStr = (typeof item === "object" ? item.rule : item || "").trim();
+            const placement = (typeof item === "object" ? item.placement : "outside") || "outside";
+            if (!ruleStr) return null;
+            const parts = ruleStr.split(":").map((p) => p.trim());
+            return { attr: parts[0], tag: parts[1] || parts[0], placement };
+          })
+          .filter(Boolean);
+
+        if (!rules.length)
+          throw new Error("Attributes to Child Tags: enter at least one rule");
+
+        // Helper: given xml string and a position just after an opening tag,
+        // find the position after the matching closing tag for tagName.
+        // Returns index in xml after the closing tag, or -1 if not found.
+        function findClosingTag(xml, startPos, tagName) {
+          const openRe = new RegExp(`<${escRe(tagName)}(?:[\\s>\/])`, "gi");
+          const closeRe = new RegExp(`<\\/${escRe(tagName)}\\s*>`, "gi");
+          let depth = 1;
+          let pos = startPos;
+          while (pos < xml.length && depth > 0) {
+            openRe.lastIndex = pos;
+            closeRe.lastIndex = pos;
+            const nextOpen = openRe.exec(xml);
+            const nextClose = closeRe.exec(xml);
+            if (!nextClose) return -1;
+            if (nextOpen && nextOpen.index < nextClose.index) {
+              depth++;
+              pos = nextOpen.index + nextOpen[0].length;
+            } else {
+              depth--;
+              pos = nextClose.index + nextClose[0].length;
+            }
+          }
+          return depth === 0 ? pos : -1;
+        }
+
+        let result = xml;
+        for (const rule of rules) {
+          const attrRe = escRe(rule.attr);
+          const inside = rule.placement === "inside";
+
+          if (inside) {
+            // INSIDE: extract attr value, remove from opening tag, insert as first child
+            for (const q of ['"', "'"]) {
+              const re = new RegExp(
+                `([ \\t]*)(<([a-zA-Z][a-zA-Z0-9_:.-]*)(?:\\s(?!${attrRe}\\s*=)[^>]*)*)\\s+${attrRe}\\s*=\\s*${q}([^${q}]*)${q}((?:\\s(?!${attrRe}\\s*=)[^>]*)*)>`,
+                "gi",
+              );
+              result = result.replace(re, (match, indent, tagOpen, tagName, val, rest) => {
+                const newTag = `<${rule.tag}>${val}</${rule.tag}>`;
+                return `${indent}${tagOpen}${rest}>\n${indent}  ${newTag}`;
+              });
+            }
+          } else {
+            // OUTSIDE: extract attr value, remove from opening tag, insert as sibling AFTER closing tag
+            // We need to find the tag name and its closing tag, so process iteratively
+            for (const q of ['"', "'"]) {
+              const re = new RegExp(
+                `([ \\t]*)(<([a-zA-Z][a-zA-Z0-9_:.-]*)(?:\\s(?!${attrRe}\\s*=)[^>]*)*)\\s+${attrRe}\\s*=\\s*${q}([^${q}]*)${q}((?:\\s(?!${attrRe}\\s*=)[^>]*)*)(\/?>)`,
+                "gi",
+              );
+              // Process with manual iteration to handle closing-tag lookup
+              let out = "";
+              let lastIndex = 0;
+              let match;
+              re.lastIndex = 0;
+              while ((match = re.exec(result)) !== null) {
+                const [full, indent, tagOpen, tagName, val, rest, close] = match;
+                const newTag = `<${rule.tag}>${val}</${rule.tag}>`;
+                if (close === "/>") {
+                  // Self-closing: no closing tag to find, place sibling right after
+                  out += result.slice(lastIndex, match.index);
+                  out += `${indent}${tagOpen}${rest}/>\n${indent}${newTag}`;
+                  lastIndex = match.index + full.length;
+                } else {
+                  // Normal opening tag: find matching closing tag
+                  const afterOpen = match.index + full.length;
+                  const afterClose = findClosingTag(result, afterOpen, tagName);
+                  if (afterClose === -1) {
+                    // Can't find closing tag — fall back: place after opening tag
+                    out += result.slice(lastIndex, match.index);
+                    out += `${indent}${tagOpen}${rest}>\n${indent}${newTag}`;
+                    lastIndex = match.index + full.length;
+                  } else {
+                    // Place newTag after the closing tag
+                    out += result.slice(lastIndex, match.index);
+                    out += `${indent}${tagOpen}${rest}>`;
+                    out += result.slice(afterOpen, afterClose);
+                    out += `\n${indent}${newTag}`;
+                    lastIndex = afterClose;
+                  }
+                }
+                re.lastIndex = lastIndex;
+              }
+              out += result.slice(lastIndex);
+              result = out;
+            }
+          }
+        }
+        return result;
+      }
+
+      // FIX: reads patternList array (one entry per row) instead of comma-separated string
+      // FIX: \b word boundary only applied when pattern starts/ends with a word character
+      //      so non-word patterns like &#4; are matched literally without \b
+      function processSpecial(xml, config) {
+        const rawList = Array.isArray(config.patternList)
+          ? config.patternList
+          : (config.patterns || "").split(","); // backwards compat with old config
+        const patternsRaw = rawList.map((s) => s.trim()).filter(Boolean);
+        if (!patternsRaw.length)
+          throw new Error(
+            "Remove Text Chunks: enter at least one word or pattern to remove",
+          );
+
+        const regexes = patternsRaw.map((p) => {
+          const escaped = p
+            .replace(/[.+?^${}()|[\]\\]/g, "\\$&")
+            .replace(/\*/g, ".*?");
+          // Only add \b when the boundary char is a word character (\w)
+          const startBound = /\w/.test(p[0]) ? "\\b" : "";
+          const endBound = /\w/.test(p[p.length - 1]) ? "\\b" : "";
+          return new RegExp(`${startBound}${escaped}${endBound}`, "g");
+        });
+
+        return xml.replace(/>([^<]*)</g, (match, text) => {
+          let clean = text;
+          for (const re of regexes) {
+            re.lastIndex = 0;
+            clean = clean.replace(re, "");
+          }
+          clean = clean.replace(/[ \t]{2,}/g, " ");
+          return ">" + clean + "<";
+        });
+      }
+
+      // FIX: nodeToObj now collects CDATA (nodeType 4) alongside text nodes (nodeType 3)
+      function nodeToObj(node) {
+        const obj = {};
+        if (node.attributes && node.attributes.length > 0) {
+          obj["@attrs"] = {};
+          for (const a of node.attributes) obj["@attrs"][a.name] = a.value;
+        }
+        const children = Array.from(node.childNodes);
+        const elems = children.filter((n) => n.nodeType === 1);
+        // FIX: include nodeType 4 (CDATA) — previously silently dropped
+        const text = children
+          .filter((n) => n.nodeType === 3 || n.nodeType === 4)
+          .map((n) => n.textContent.trim())
+          .join("")
+          .trim();
+        if (!elems.length) {
+          if (!Object.keys(obj).length) return text || null;
+          if (text) obj["#text"] = text;
+          return obj;
+        }
+        const map = {};
+        for (const child of elems) {
+          const key = child.tagName,
+            val = nodeToObj(child);
+          if (map[key] === undefined) map[key] = val;
+          else if (Array.isArray(map[key])) map[key].push(val);
+          else map[key] = [map[key], val];
+        }
+        Object.assign(obj, map);
+        if (text) obj["#text"] = text;
+        return obj;
+      }
+
+      function processNsStrip(xml, config) {
+        const specific = (
+          Array.isArray(config.specificList)
+            ? config.specificList
+            : ((config.specific || "").split(",")) // backwards compat
+        ).map((s) => s.trim()).filter(Boolean);
+        let result = xml;
+        if (!specific.length) {
+          result = result.replace(
+            /<([a-zA-Z][a-zA-Z0-9_.-]*):([a-zA-Z][a-zA-Z0-9_.-]*)/g,
+            "<$2",
+          );
+          result = result.replace(
+            /<\/([a-zA-Z][a-zA-Z0-9_.-]*):([a-zA-Z][a-zA-Z0-9_.-]*)/g,
+            "</$2",
+          );
+          result = result.replace(
+            /\s+xmlns(?::[a-zA-Z][a-zA-Z0-9_.-]*)?\s*=\s*"[^"]*"/g,
+            "",
+          );
+          result = result.replace(
+            /\s+xmlns(?::[a-zA-Z][a-zA-Z0-9_.-]*)?\s*=\s*'[^']*'/g,
+            "",
+          );
+        } else {
+          for (const ns of specific) {
+            const re = escRe(ns);
+            result = result.replace(
+              new RegExp(`<(${re}):([a-zA-Z][a-zA-Z0-9_.-]*)`, "g"),
+              "<$2",
+            );
+            result = result.replace(
+              new RegExp(`<\\/(${re}):([a-zA-Z][a-zA-Z0-9_.-]*)`, "g"),
+              "</$2",
+            );
+            result = result.replace(
+              new RegExp(`\\s+xmlns:${re}\\s*=\\s*"[^"]*"`, "g"),
+              "",
+            );
+            result = result.replace(
+              new RegExp(`\\s+xmlns:${re}\\s*=\\s*'[^']*'`, "g"),
+              "",
+            );
+          }
+        }
+        return result;
+      }
+
+      function processTagUnwrap(xml, config) {
+        const tags = (
+          Array.isArray(config.tagList)
+            ? config.tagList
+            : ((config.tags || "").split(",")) // backwards compat
+        ).map((t) => t.trim()).filter(Boolean);
+        if (!tags.length)
+          throw new Error("Tag Unwrapper: enter at least one tag name");
+        let result = xml;
+        for (const tag of tags) {
+          const re = escRe(tag);
+          // FIX: (?=[\s>\/]) ensures exact tag name match only
+          result = result.replace(
+            new RegExp(`<${re}(?=[\\s>\\/])[^>]*>`, "gi"),
+            "",
+          );
+          result = result.replace(new RegExp(`<\\/${re}(?=[\\s>])>`, "gi"), "");
+        }
+        return result;
+      }
+
+      function processTagRename(xml, config) {
+        const pairsRaw = (
+          Array.isArray(config.pairList)
+            ? config.pairList
+            : ((config.pairs || "").split(",")) // backwards compat
+        ).map((s) => s.trim()).filter(Boolean);
+        if (!pairsRaw.length)
+          throw new Error("Rename Tag: enter at least one OldTag:NewTag pair");
+        let result = xml;
+        for (const pairStr of pairsRaw) {
+          const parts = pairStr.split(":").map((p) => p.trim());
+          if (parts.length < 2 || !parts[0] || !parts[1])
+            throw new Error(
+              `Rename Tag: invalid pair "${pairStr}" — use OldTag:NewTag`,
+            );
+          const oldName = parts[0],
+            newName = parts[1];
+          if (!/^[a-zA-Z][a-zA-Z0-9_:.-]*$/.test(newName))
+            throw new Error(
+              `Rename Tag: "${newName}" contains invalid characters`,
+            );
+          const re = escRe(oldName);
+          // FIX: (?=[\s>\/]) — only match exact tag name, not prefixes
+          result = result.replace(
+            new RegExp(`<${re}(?=[\\s>\\/])((?:\\s[^>]*)?)>`, "gi"),
+            `<${newName}$1>`,
+          );
+          result = result.replace(
+            new RegExp(`<${re}(?=[\\s>\\/])((?:\\s[^>]*)?)\\/>`, "gi"),
+            `<${newName}$1/>`,
+          );
+          result = result.replace(
+            new RegExp(`<\\/${re}(?=[\\s>])>`, "gi"),
+            `</${newName}>`,
+          );
+        }
+        return result;
+      }
+
+      function processTagWipe(xml, config) {
+        const tags = (
+          Array.isArray(config.tagList)
+            ? config.tagList
+            : ((config.tags || "").split(",")) // backwards compat
+        ).map((t) => t.trim()).filter(Boolean);
+        if (!tags.length)
+          throw new Error("Tag Wiper: enter at least one tag name");
+        let result = xml;
+        for (const tag of tags) {
+          const re = escRe(tag);
+          let prev;
+          do {
+            prev = result;
+            result = result.replace(
+              new RegExp(
+                `<${re}(?=[\\s>\\/])(?:[^>]*)?>(?:[\\s\\S]*?)<\\/${re}>`,
+                "gi",
+              ),
+              "",
+            );
+          } while (result !== prev);
+          result = result.replace(
+            new RegExp(`<${re}(?=[\\s>\\/])(?:[^>]*)?\\/>`, "gi"),
+            "",
+          );
+        }
+        return result;
+      }
+
+      // Repeatedly removes all empty tags until none remain.
+      // Handles: <Tag/>, <Tag attr="x"/>, <Tag></Tag>, <Tag>  </Tag>
+      // Cascades upward: if removing a child empties its parent, the parent is removed too.
+      function processEmptyStrip(xml) {
+        let result = xml;
+        let prev;
+        do {
+          prev = result;
+          // Remove self-closing tags
+          result = result.replace(
+            /<[a-zA-Z][a-zA-Z0-9_:.-]*(?:\s[^>]*)?\s*\/>/g,
+            "",
+          );
+          // Remove open/close pairs with empty or whitespace-only content
+          result = result.replace(
+            /<([a-zA-Z][a-zA-Z0-9_:.-]*)(?:\s[^>]*)?\s*>\s*<\/\1>/g,
+            "",
+          );
+        } while (result !== prev);
+        return result;
+      }
+
+      function processXmlToJson(xml) {
+        const parser = new DOMParser();
+        const trimmed = xml.trim();
+        let doc = parser.parseFromString(trimmed, "application/xml");
+        let err = doc.querySelector("parsererror");
+        if (err) {
+          doc = parser.parseFromString(
+            "<__root__>" + trimmed + "</__root__>",
+            "application/xml",
+          );
+          err = doc.querySelector("parsererror");
+          if (err)
+            throw new Error(
+              "XML → JSON: Invalid XML — " +
+                err.textContent.split("\n")[0].trim(),
+            );
+        }
+        const root = doc.documentElement;
+        if (root.tagName === "__root__") {
+          const children = Array.from(root.childNodes).filter(
+            (n) => n.nodeType === 1,
+          );
+          const map = {};
+          for (const child of children) {
+            const key = child.tagName,
+              val = nodeToObj(child);
+            if (map[key] === undefined) map[key] = val;
+            else if (Array.isArray(map[key])) map[key].push(val);
+            else map[key] = [map[key], val];
+          }
+          return JSON.stringify(map, null, 2);
+        }
+        const obj = {};
+        obj[root.tagName] = nodeToObj(root);
+        return JSON.stringify(obj, null, 2);
+      }
+
+      // ─── ASYNC PIPELINE ───
+      function setProgress(pct, label) {
+        document.getElementById("progress-fill").style.width = pct + "%";
+        document.getElementById("progress-label").textContent = label;
+      }
+      function showProgress(show) {
+        document
+          .getElementById("progress-wrap")
+          .classList.toggle("active", show);
+      }
+
+      function buildWorkerBlob() {
+        const src = `
+var escRe = ${escRe.toString()};
+var escHtml = ${escHtml.toString()};
+var normaliseLineEndings = ${normaliseLineEndings.toString()};
+var processExtract = ${processExtract.toString()};
+var processNestedWrapper = ${processNestedWrapper.toString()};
+var processAttrs = ${processAttrs.toString()};
+var processAttrExtract = ${processAttrExtract.toString()};
+var processSpecial = ${processSpecial.toString()};
+var processNsStrip = ${processNsStrip.toString()};
+var processTagUnwrap = ${processTagUnwrap.toString()};
+var processTagRename = ${processTagRename.toString()};
+var processTagWipe = ${processTagWipe.toString()};
+var processEmptyStrip = ${processEmptyStrip.toString()};
+
+self.onmessage = function(e) {
+  var d = e.data;
+  if (d.resume) { runFrom(d.current, d.steps, d.nextIdx, d.log, d.total); return; }
+  runFrom(d.input, d.steps, 0, [], d.steps.length);
+};
+
+function runFrom(current, steps, startIdx, log, total) {
+  try {
+    for (var i = startIdx; i < steps.length; i++) {
+      var step = steps[i];
+      self.postMessage({type:'progress', pct:Math.round((i/total)*90), label:'Running: '+step.label+'\u2026'});
+      if (step.id === 'xml2json') {
+        self.postMessage({type:'main_thread', stepId:step.id, current:current, steps:steps, resumeIdx:i+1, log:log, total:total});
+        return;
+      }
+      if (step.id==='extract')     current=processExtract(current,step.config);
+      else if(step.id==='nested')      current=processNestedWrapper(current,step.config);
+      else if(step.id==='attrs')       current=processAttrs(current,step.config);
+      else if(step.id==='attrextract') current=processAttrExtract(current,step.config);
+      else if(step.id==='special')     current=processSpecial(current,step.config);
+      else if(step.id==='nsstrip')     current=processNsStrip(current,step.config);
+      else if(step.id==='tagunwrap')   current=processTagUnwrap(current,step.config);
+      else if(step.id==='tagnrename')  current=processTagRename(current,step.config);
+      else if(step.id==='tagwipe')     current=processTagWipe(current,step.config);
+      else if(step.id==='emptystrip')  current=processEmptyStrip(current);
+      log.push(step.label);
+    }
+    self.postMessage({type:'done', output:current, log:log});
+  } catch(err) {
+    self.postMessage({type:'error', message:err.message});
+  }
+}`;
+        return new Blob([src], { type: "text/javascript" });
+      }
+
+      async function runPipeline() {
+        const input = document.getElementById("xml-input").value;
+        if (!input.trim()) {
+          setStatus("No input XML provided", "err");
+          return;
+        }
+        const enabled = state.steps.filter((s) => s.enabled);
+        if (!enabled.length) {
+          setStatus("No pipeline steps enabled", "err");
+          return;
+        }
+
+        const runBtn = document.getElementById("run-btn");
+        runBtn.disabled = true;
+        showProgress(true);
+        setProgress(0, "Starting…");
+        setStatus("");
+
+        const blob = buildWorkerBlob();
+        const workerUrl = URL.createObjectURL(blob);
+        const worker = new Worker(workerUrl);
+        const cleanup = () => {
+          worker.terminate();
+          URL.revokeObjectURL(workerUrl);
+        };
+
+        worker.onmessage = (e) => {
+          const msg = e.data;
+          if (msg.type === "progress") {
+            setProgress(msg.pct, msg.label);
+          } else if (msg.type === "main_thread") {
+            try {
+              let result = msg.current;
+              if (msg.stepId === "xml2json")
+                result = processXmlToJson(msg.current);
+              const log = [
+                ...msg.log,
+                msg.stepId === "xml2json" ? "XML → JSON" : msg.stepId,
+              ];
+              worker.postMessage({
+                resume: true,
+                current: result,
+                steps: msg.steps,
+                nextIdx: msg.resumeIdx,
+                log,
+                total: msg.total,
+              });
+            } catch (err) {
+              setStatus("✕ " + err.message, "err");
+              runBtn.disabled = false;
+              setTimeout(() => showProgress(false), 1200);
+              cleanup();
+            }
+          } else if (msg.type === "done") {
+            setProgress(100, "Done");
+            document.getElementById("xml-output").value = msg.output;
+            updateSizeInfo();
+            setStatus(`✓ Applied: ${msg.log.join(" → ")}`, "ok");
+            runBtn.disabled = false;
+            setTimeout(() => showProgress(false), 1200);
+            cleanup();
+          } else if (msg.type === "error") {
+            setStatus("✕ " + msg.message, "err");
+            runBtn.disabled = false;
+            setTimeout(() => showProgress(false), 1200);
+            cleanup();
+          }
+        };
+
+        worker.onerror = (ev) => {
+          setStatus("✕ Worker error: " + ev.message, "err");
+          runBtn.disabled = false;
+          setTimeout(() => showProgress(false), 1200);
+          cleanup();
+        };
+
+        worker.postMessage({
+          input,
+          steps: enabled.map((s) => ({
+            id: s.id,
+            label: s.label,
+            config: { ...s.config },
+          })),
+        });
+      }
+
+      function setStatus(msg, type) {
+        const el = document.getElementById("status-msg");
+        el.textContent = msg;
+        el.className = "status-msg" + (type ? " " + type : "");
+      }
+
+      // ─── SIZE INFO ───
+      function fmtSize(b) {
+        if (b < 1024) return b + " B";
+        if (b < 1048576) return (b / 1024).toFixed(1) + " KB";
+        return (b / 1048576).toFixed(2) + " MB";
+      }
+      function updateSizeInfo() {
+        const inp = document.getElementById("xml-input").value;
+        const out = document.getElementById("xml-output").value;
+        document.getElementById("input-size").textContent = fmtSize(
+          new Blob([inp]).size,
+        );
+        document.getElementById("input-lines").textContent = inp
+          ? inp.split("\n").length
+          : 0;
+        document.getElementById("output-size").textContent = fmtSize(
+          new Blob([out]).size,
+        );
+        document.getElementById("output-lines").textContent = out
+          ? out.split("\n").length
+          : 0;
+      }
+
+      // ─── PRESETS ───
+      function renderPresets() {
+        const list = document.getElementById("preset-list");
+        list.innerHTML = "";
+        if (!state.presets.length) {
+          list.innerHTML =
+            '<div style="font-size:11px;color:var(--muted2);padding:4px 2px;">No presets yet</div>';
+          return;
+        }
+        state.presets.forEach((p, i) => {
+          const item = document.createElement("div");
+          item.className = "preset-item";
+          item.innerHTML = `<span class="preset-name" title="${escHtml(p.name)}">${escHtml(p.name)}</span><span class="preset-del" onclick="deletePreset(${i},event)">×</span>`;
+          item.addEventListener("click", () => loadPreset(i));
+          list.appendChild(item);
+        });
+      }
+
+      function openSavePreset() {
+        document.getElementById("preset-name-input").value = "";
+        document.getElementById("modal-overlay").classList.add("open");
+        setTimeout(
+          () => document.getElementById("preset-name-input").focus(),
+          50,
+        );
+      }
+      function closeModal(e) {
+        if (!e || e.target === document.getElementById("modal-overlay"))
+          document.getElementById("modal-overlay").classList.remove("open");
+      }
+      function savePreset() {
+        const name = document.getElementById("preset-name-input").value.trim();
+        if (!name) return;
+        state.presets.push({
+          name,
+          steps: state.steps.map((s) => ({
+            id: s.id,
+            instanceId: s.instanceId,
+            label: s.label,
+            enabled: s.enabled,
+            config: { ...s.config },
+          })),
+        });
+        saveState();
+        renderPresets();
+        closeModal();
+      }
+      function loadPreset(idx) {
+        const preset = state.presets[idx];
+        if (!preset) return;
+        // Rebuild steps from the preset, assigning new instanceIds to avoid collisions
+        // and merging fields from DEFAULT_STEPS definitions.
+        const newSteps = preset.steps.map((ps) => {
+          const def = DEFAULT_STEPS.find((d) => d.id === ps.id);
+          return {
+            ...(def || {}),
+            ...ps,
+            instanceId: newInstanceId(ps.id),
+            config: { ...(def ? def.config : {}), ...(ps.config || {}) },
+          };
+        });
+        // Any DEFAULT_STEPS not in preset get appended (disabled)
+        const idsInPreset = new Set(preset.steps.map((s) => s.id));
+        DEFAULT_STEPS.forEach((d) => {
+          if (!idsInPreset.has(d.id)) {
+            newSteps.push({ ...d, config: { ...d.config }, instanceId: newInstanceId(d.id) });
+          }
+        });
+        state.steps = newSteps;
+        saveState();
+        renderSidebar();
+        renderPipeline();
+        setStatus(`Loaded preset: ${preset.name}`, "ok");
+      }
+      function deletePreset(idx, e) {
+        e.stopPropagation();
+        state.presets.splice(idx, 1);
+        saveState();
+        renderPresets();
+      }
+
+      // ─── IMPORT/EXPORT ───
+      function exportConfig() {
+        const config = {
+          version: 5,
+          exportedAt: new Date().toISOString(),
+          steps: state.steps.map((s) => ({
+            id: s.id,
+            instanceId: s.instanceId,
+            label: s.label,
+            enabled: s.enabled,
+            config: { ...s.config },
+          })),
+        };
+        download(
+          "xml-cleaner-config.json",
+          JSON.stringify(config, null, 2),
+          "application/json",
+        );
+        setStatus("Config exported", "ok");
+      }
+      function exportPresets() {
+        download(
+          "xml-cleaner-presets.json",
+          JSON.stringify({ presets: state.presets, version: 4 }, null, 2),
+          "application/json",
+        );
+      }
+      function importPresetsClick() {
+        document.getElementById("import-file").click();
+      }
+      function importPresetsFile(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          try {
+            const data = JSON.parse(ev.target.result);
+            const presets = data.presets || (Array.isArray(data) ? data : []);
+            if (!presets.length) {
+              setStatus("No presets found in file", "err");
+              return;
+            }
+            presets.forEach((p) => {
+              if (!state.presets.find((x) => x.name === p.name))
+                state.presets.push(p);
+            });
+            saveState();
+            renderPresets();
+            setStatus(`Imported ${presets.length} preset(s)`, "ok");
+          } catch (err) {
+            setStatus("Import failed: invalid JSON", "err");
+          }
+          e.target.value = "";
+        };
+        reader.readAsText(file);
+      }
+
+      // ─── UTILS ───
+      function loadFileIntoInput(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          document.getElementById("xml-input").value = ev.target.result;
+          updateSizeInfo();
+          setStatus(`✓ Loaded: ${file.name} (${fmtSize(file.size)})`, "ok");
+        };
+        reader.onerror = () => setStatus("✕ Failed to read file", "err");
+        reader.readAsText(file);
+        e.target.value = "";
+      }
+      function clearInput() {
+        document.getElementById("xml-input").value = "";
+        updateSizeInfo();
+      }
+      function clearAll() {
+        document.getElementById("xml-input").value = "";
+        document.getElementById("xml-output").value = "";
+        updateSizeInfo();
+        setStatus("");
+      }
+      function copyOutput() {
+        const val = document.getElementById("xml-output").value;
+        if (!val) return;
+        navigator.clipboard.writeText(val).then(() => {
+          const btn = document.getElementById("copy-btn");
+          btn.textContent = "Copied!";
+          setTimeout(() => (btn.textContent = "Copy"), 1800);
+        });
+      }
+      function downloadOutput() {
+        const val = document.getElementById("xml-output").value;
+        if (!val) {
+          setStatus("Nothing to download", "err");
+          return;
+        }
+        const isJson = val.trim().startsWith("{") || val.trim().startsWith("[");
+        download(
+          isJson ? "output.json" : "output.xml",
+          val,
+          isJson ? "application/json" : "application/xml",
+        );
+      }
+      function useAsInput() {
+        const val = document.getElementById("xml-output").value;
+        if (!val) return;
+        document.getElementById("xml-input").value = val;
+        document.getElementById("xml-output").value = "";
+        updateSizeInfo();
+        setStatus("Output moved to input", "ok");
+      }
+      function download(filename, content, type) {
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(new Blob([content], { type }));
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(a.href);
+      }
+      function loadSample() {
+        document.getElementById("xml-input").value =
+          `<?xml version="1.0" encoding="UTF-8"?>
+<catalog id="main" version="2.0">
+  <item id="001" category="book">
+    <item id="001a" category="sub">
+      <title lang="en">Sub Item</title>
+    </item>
+    <title lang="en">Clean Code</title>
+    <author email="uncle@bob.com">Robert C. Martin</author>
+    <price currency="USD">39.99</price>
+  </item>
+  <item id="002" category="book">
+    <title lang="en">The Pragmatic Programmer</title>
+    <author email="dave@example.com">David Thomas</author>
+    <price currency="USD">45.00</price>
+  </item>
+  <item id="003" category="video">
+    <title lang="en">Design Patterns</title>
+    <author email="gof@example.com">Gang of Four</author>
+    <price currency="USD">29.95</price>
+  </item>
+</catalog>`;
+        updateSizeInfo();
+      }
+
+      // ─── INIT ───
+      renderSidebar();
+      renderPipeline();
+      updateSizeInfo();
+    </script>
+  </body>
+</html>
