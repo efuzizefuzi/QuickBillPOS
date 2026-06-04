@@ -9154,15 +9154,33 @@ node server.js</pre
             saveSalesList();
             showAddBanner(salesList.findIndex((i) => i.id === targetId) + 1);
             jumpToItem(targetId);
-          } else if (existing && isDuplicateLazy()) {
-            // ── DUPLICATE LAZY FLOW: Close scanner and show duplicate popup on main screen ──
+          } else if (isDuplicateLazy()) {
+            // ── DUPLICATE LAZY FLOW: Close scanner and return to cart for ANY item ──
             closeScanner();
             if (typeof closeCheckout === "function") closeCheckout();
 
-            // Wait briefly for the scanner overlay to animate away, then show banner
-            setTimeout(() => {
-              showDupBanner(item.name, item.mrp, clean);
-            }, 350);
+            if (existing) {
+              // Wait briefly for the scanner overlay to animate away, then show duplicate banner
+              setTimeout(() => {
+                showDupBanner(item.name, item.mrp, clean);
+              }, 350);
+            } else {
+              // Add new item and jump to it
+              const newId = nextId++;
+              salesList.push({
+                id: newId,
+                name: item.name,
+                mrp: item.mrp,
+                qty: 1,
+                price: item.mrp,
+                barcode: clean,
+              });
+              renderSales(newId);
+              updateSummary();
+              saveSalesList();
+              showAddBanner(salesList.length);
+              jumpToItem(newId);
+            }
           } else {
             // ── ORIGINAL FLOW: Keep scanner open, put to sleep, show popups ──
             putScannerToSleep();
