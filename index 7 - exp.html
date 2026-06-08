@@ -6446,7 +6446,7 @@ const PRECACHE = [
         <div class="checkout-title-wrap">
           <div style="display: flex; align-items: center; gap: 8px">
             <div class="checkout-title">
-              QuickBill <span class="title-accent">Summary</span>
+              <span class="title-accent">Summary</span>
             </div>
             <span
               class="tally-status-dot"
@@ -6529,7 +6529,7 @@ const PRECACHE = [
         <div class="checkout-title-wrap">
           <div style="display: flex; align-items: center; gap: 8px">
             <div class="checkout-title">
-              QuickBill <span class="title-accent">Payment</span>
+              <span class="title-accent">Payment</span>
             </div>
             <span
               class="tally-status-dot"
@@ -8083,7 +8083,7 @@ node server.js</pre
       <div class="checkout-header">
         <button class="checkout-back" onclick="closeQueuePage()">‹</button>
         <div class="checkout-title" style="flex: 1">
-          QuickBill <span class="title-accent">Sync Queue</span>
+          <span class="title-accent">Sync Queue</span>
         </div>
         <button
           onclick="clearQueue()"
@@ -8330,7 +8330,7 @@ node server.js</pre
         </button>
         <div class="checkout-title-wrap">
           <div class="checkout-title" id="successHeaderTitle">
-            QuickBill <span class="title-accent">Confirmation</span>
+            <span class="title-accent">Confirmation</span>
           </div>
         </div>
       </div>
@@ -10742,7 +10742,7 @@ ${
       function _resolveSuccessScreen(allSuccess) {
         if (allSuccess) {
           document.getElementById("successHeaderTitle").innerHTML =
-            'QuickBill <span class="title-accent">Confirmation</span>';
+            ' <span class="title-accent">Confirmation</span>';
           document.getElementById("successHeaderIcon").innerHTML =
             '<i data-lucide="check-circle" style="width:64px;height:64px;stroke:var(--success);stroke-width:1.5px;"></i>';
           document.getElementById("successMainTitle").textContent =
@@ -10751,7 +10751,7 @@ ${
             "Start New Bill →";
         } else {
           document.getElementById("successHeaderTitle").innerHTML =
-            'QuickBill <span class="title-accent">Sync Failed</span>';
+            ' <span class="title-accent">Sync Failed</span>';
           document.getElementById("successHeaderIcon").innerHTML =
             '<i data-lucide="x-circle" style="width:64px;height:64px;stroke:var(--danger);stroke-width:1.5px;"></i>';
           document.getElementById("successMainTitle").textContent =
@@ -12894,7 +12894,7 @@ ${
       // Set the screen to "Sale Completed" state
       function _setSuccessCompleted() {
         document.getElementById("successHeaderTitle").innerHTML =
-          'QuickBill <span class="title-accent">Confirmation</span>';
+          ' <span class="title-accent">Confirmation</span>';
         document.getElementById("successHeaderIcon").innerHTML =
           '<i data-lucide="check-circle" style="width:64px;height:64px;stroke:var(--success);stroke-width:1.5px;"></i>';
         document.getElementById("successMainTitle").textContent =
@@ -12908,7 +12908,7 @@ ${
       // Set the screen to "Syncing to Tally..." pending state
       function _setSuccessPending(count) {
         document.getElementById("successHeaderTitle").innerHTML =
-          'QuickBill <span class="title-accent">Syncing...</span>';
+          ' <span class="title-accent">Syncing...</span>';
         document.getElementById("successHeaderIcon").innerHTML =
           '<div style="width:64px;height:64px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin:auto;"></div>';
         document.getElementById("successMainTitle").textContent =
@@ -13114,7 +13114,7 @@ ${
         <button class="checkout-back" onclick="closePosPreview()">‹</button>
         <div class="checkout-title-wrap">
           <div class="checkout-title">
-            QuickBill <span class="title-accent">Receipt</span>
+            <span class="title-accent">Receipt</span>
           </div>
         </div>
       </div>
