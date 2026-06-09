@@ -5899,8 +5899,14 @@ const PRECACHE = [
         animation: slideUp 0.28s cubic-bezier(0.34, 1.3, 0.64, 1);
       }
       @keyframes slideUp {
-        from { transform: translateY(100%); opacity: 0; }
-        to   { transform: translateY(0);    opacity: 1; }
+        from {
+          transform: translateY(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
       }
       .confirm-popup-icon {
         width: 72px;
@@ -5941,7 +5947,9 @@ const PRECACHE = [
         touch-action: manipulation;
         -webkit-tap-highlight-color: transparent;
       }
-      .confirm-go-back-btn:active { transform: scale(0.96); }
+      .confirm-go-back-btn:active {
+        transform: scale(0.96);
+      }
       .confirm-bill-btn {
         flex: 1.6;
         padding: 18px;
@@ -5961,7 +5969,9 @@ const PRECACHE = [
         touch-action: manipulation;
         -webkit-tap-highlight-color: transparent;
       }
-      .confirm-bill-btn:active { transform: scale(0.96); }
+      .confirm-bill-btn:active {
+        transform: scale(0.96);
+      }
 
       /* ── SUCCESS OVERLAY (full-page) ── */
       .success-overlay {
@@ -6436,7 +6446,7 @@ const PRECACHE = [
         <div class="checkout-title-wrap">
           <div style="display: flex; align-items: center; gap: 8px">
             <div class="checkout-title">
-              Confirm <span class="title-accent">Bill</span>
+              <span class="title-accent">Summary</span>
             </div>
             <span
               class="tally-status-dot"
@@ -6519,7 +6529,7 @@ const PRECACHE = [
         <div class="checkout-title-wrap">
           <div style="display: flex; align-items: center; gap: 8px">
             <div class="checkout-title">
-              Confirm <span class="title-accent">Payment</span>
+              <span class="title-accent">Payment</span>
             </div>
             <span
               class="tally-status-dot"
@@ -6829,7 +6839,7 @@ const PRECACHE = [
                 type="tel"
                 inputmode="numeric"
                 maxlength="10"
-                placeholder="10-digit mobile number"
+                placeholder="10-Digit Number"
                 autocomplete="tel"
                 onfocus="
                   document
@@ -6874,7 +6884,7 @@ const PRECACHE = [
           ‹
         </button>
         <div class="settings-title-wrap">
-          <div class="settings-title">Settings</div>
+          <div class="settings-title">QuickBill Settings</div>
           <span
             class="tally-status-dot"
             id="settingsTallyDot"
@@ -6919,14 +6929,14 @@ const PRECACHE = [
           id="tabLogs"
           onclick="switchSettingsTab('logs')"
         >
-          Transactions
+          QuickBill Transactions
         </button>
         <button
           class="settings-tab"
           id="tabSettings"
           onclick="switchSettingsTab('settings')"
         >
-          Settings
+          QuickBill Setup
           <span
             class="settings-badge"
             id="settingsStockBadge"
@@ -7018,7 +7028,7 @@ const PRECACHE = [
               margin: 0 0 10px;
             "
           >
-            General Settings
+            QuickBill General Settings
           </h3>
 
           <div class="settings-section" style="margin-bottom: 14px">
@@ -7031,7 +7041,7 @@ const PRECACHE = [
                 margin-bottom: 0px;
               "
             >
-              <span>Lazy Camera</span>
+              <span>Auto-Close Scanner</span>
               <label
                 class="proxy-toggle-wrap"
                 title="Close scanner immediately after scanning an item"
@@ -7069,7 +7079,7 @@ const PRECACHE = [
                 margin-bottom: 0px;
               "
             >
-              <span>Duplicate Lazy</span>
+              <span>Auto-Close on Duplicate</span>
               <label
                 class="proxy-toggle-wrap"
                 title="Close scanner immediately and show duplicate popup when scanning an existing item"
@@ -7191,7 +7201,7 @@ const PRECACHE = [
             </div>
           </div>
           <div class="settings-section">
-            <div class="settings-section-title">Paytm/Payment QR Template</div>
+            <div class="settings-section-title">UPI Payment QR Setup</div>
             <p
               style="
                 font-size: 11.5px;
@@ -7239,7 +7249,7 @@ const PRECACHE = [
               margin: 24px 0 10px;
             "
           >
-            Advance Settings
+            QuickBill Advanced Settings
           </h3>
 
           <h4
@@ -7256,7 +7266,7 @@ const PRECACHE = [
           </h4>
 
           <div class="settings-section">
-            <div class="settings-section-title">Operations</div>
+            <div class="settings-section-title">Sync Tools</div>
             <button
               class="qb-btn"
               style="
@@ -7275,7 +7285,7 @@ const PRECACHE = [
                 data-lucide="list-restart"
                 style="width: 16px; height: 16px; margin-right: 8px"
               ></i>
-              Open Transaction Queue
+              Open Pending Tally Sync
             </button>
           </div>
 
@@ -7338,7 +7348,7 @@ const PRECACHE = [
           </div>
 
           <div class="settings-section" id="xmlPresetSection">
-            <div class="settings-section-title">XML Custom Presets</div>
+            <div class="settings-section-title">Tally Templates</div>
             <p
               style="
                 font-size: 11.5px;
@@ -7347,7 +7357,7 @@ const PRECACHE = [
                 margin-bottom: 12px;
               "
             >
-              Upload JSON templates to automatically generate custom XML
+              Upload JSON templates to automatically generate custom Tally sync
               requests (e.g., Loyalty, Sync) during checkout.
             </p>
 
@@ -7399,10 +7409,10 @@ const PRECACHE = [
                 margin-bottom: 14px;
               "
             >
-              <span>Proxy Server</span>
+              <span>Tally Connection Setup</span>
               <label
                 class="proxy-toggle-wrap"
-                title="Enable proxy to read real Tally responses"
+                title="Enable bridge to read real Tally responses"
               >
                 <input
                   type="checkbox"
@@ -7423,10 +7433,10 @@ const PRECACHE = [
                 margin-bottom: 14px;
               "
             >
-              Without a proxy, Tally responses are
-              <strong style="color: var(--text)">opaque</strong> — the browser
-              blocks the body. Enable a local proxy (e.g. Node.js on
-              port&nbsp;3000) to receive full XML responses.
+              Without a bridge app, Tally replies
+              <strong style="color: var(--text)">cannot be read</strong> — the
+              browser blocks the response. Enable a local bridge (e.g. Node.js
+              on port&nbsp;3000) to receive full Tally responses.
             </p>
 
             <div
@@ -7589,8 +7599,8 @@ node server.js</pre
                   "
                 >
                   Run <strong style="color: var(--text)">server.js</strong> on
-                  your PC — it serves QuickBill on port 8080 and the Tally proxy
-                  on port 3000. Set the URL to
+                  your PC — it serves QuickBill on port 8080 and the Tally
+                  bridge on port 3000. Set the URL to
                   <strong style="color: var(--text)"
                     >http://&lt;YOUR-PC-IP&gt;:3000</strong
                   >.
@@ -7622,7 +7632,7 @@ node server.js</pre
                   font-size: 11px;
                   color: var(--success);
                 "
-                >Requests routed via proxy</span
+                >Tally requests routed via bridge</span
               >
               <span
                 id="proxyActivePillUrl"
@@ -7647,7 +7657,7 @@ node server.js</pre
               "
             >
               <span style="display: flex; align-items: center; gap: 10px">
-                XML Request
+                Send to Tally
                 <label
                   class="proxy-toggle-wrap"
                   title="Automatically send requests on bill generation"
@@ -7859,7 +7869,7 @@ node server.js</pre
                 "
               >
                 <span id="xmlReqSendIcon">📡</span>
-                <span id="xmlReqSendLabel">Send Request(s)</span>
+                <span id="xmlReqSendLabel">Send to Tally</span>
               </button>
 
               <button
@@ -7975,7 +7985,7 @@ node server.js</pre
                 onclick="xmlReqLoadRespAsReq()"
                 title="Load response back as next request"
               >
-                ↺ Reuse
+                ↺ Load as Template
               </button>
             </div>
           </div>
@@ -7994,7 +8004,7 @@ node server.js</pre
                 margin-bottom: 12px;
               "
             >
-              <span>Manual Request History</span>
+              <span>Sync History</span>
               <button
                 onclick="xmlReqClearHistory()"
                 style="
@@ -8022,7 +8032,7 @@ node server.js</pre
           </div>
 
           <div class="settings-section">
-            <div class="settings-section-title">Import Past Transactions</div>
+            <div class="settings-section-title">Restore Backed-Up Bills</div>
             <p
               style="
                 font-size: 11.5px;
@@ -8031,8 +8041,8 @@ node server.js</pre
                 margin-bottom: 12px;
               "
             >
-              Upload JSON files containing previously downloaded transactions to
-              restore or merge them.
+              Upload JSON files containing previously downloaded bills to
+              restore or merge them back into QuickBill.
             </p>
 
             <div class="drop-zone" id="txDropZone">
@@ -8060,7 +8070,7 @@ node server.js</pre
                 disabled
                 onclick="importStagedTransactions()"
               >
-                Import Transactions
+                Restore Bills
               </button>
             </div>
           </div>
@@ -8073,7 +8083,7 @@ node server.js</pre
       <div class="checkout-header">
         <button class="checkout-back" onclick="closeQueuePage()">‹</button>
         <div class="checkout-title" style="flex: 1">
-          Transaction <span class="title-accent">Queue</span>
+          <span class="title-accent">Sync Queue</span>
         </div>
         <button
           onclick="clearQueue()"
@@ -8093,7 +8103,7 @@ node server.js</pre
       <div class="checkout-scroll-body" id="queueList"></div>
       <div class="checkout-footer">
         <button class="co-prepare-btn" onclick="retryAllFailed()">
-          <span class="co-prepare-btn-text">Push All Failed (Retry)</span>
+          <span class="co-prepare-btn-text">Re-send All to Tally</span>
           <i data-lucide="refresh-cw"></i>
         </button>
       </div>
@@ -8102,7 +8112,7 @@ node server.js</pre
     <div class="log-detail-overlay" id="logDetailOverlay">
       <div class="log-detail-header">
         <button class="log-detail-back" onclick="closeLogDetail()">‹</button>
-        <div class="log-detail-title">Bill Details</div>
+        <div class="log-detail-title">QuickBill Details</div>
         <div class="log-detail-id" id="logDetailId"></div>
       </div>
       <div class="log-detail-body" id="logDetailBody"></div>
@@ -8254,7 +8264,7 @@ node server.js</pre
 
       <div class="scanner-summary-section">
         <div class="scanner-summary-header">
-          <div class="sc-sum-title">Current Bill</div>
+          <div class="sc-sum-title">Items in Cart</div>
           <div class="sc-sum-qty">
             Qty:
             <strong id="scanTotalQty" style="color: var(--accent)">0</strong>
@@ -8276,13 +8286,27 @@ node server.js</pre
     <div class="confirm-popup-backdrop" id="confirmPopupBackdrop">
       <div class="confirm-popup">
         <div class="confirm-popup-icon">
-          <i data-lucide="receipt-text" style="width:36px;height:36px;stroke:var(--accent);stroke-width:2px;"></i>
+          <i
+            data-lucide="receipt-text"
+            style="
+              width: 36px;
+              height: 36px;
+              stroke: var(--accent);
+              stroke-width: 2px;
+            "
+          ></i>
         </div>
-        <div class="confirm-popup-title">Confirm Bill?</div>
+        <div class="confirm-popup-title">QuickBill Confirmation?</div>
         <div class="confirm-popup-actions">
-          <button class="confirm-go-back-btn" onclick="closeConfirmPopup()">‹ Go Back</button>
+          <button class="confirm-go-back-btn" onclick="closeConfirmPopup()">
+            ‹ Go Back
+          </button>
           <button class="confirm-bill-btn" onclick="executeBillPreparation()">
-            <i data-lucide="check" style="width:18px;height:18px;stroke-width:3px;"></i> Confirm Bill
+            <i
+              data-lucide="check"
+              style="width: 18px; height: 18px; stroke-width: 3px"
+            ></i>
+            Confirm Bill
           </button>
         </div>
       </div>
@@ -8290,15 +8314,29 @@ node server.js</pre
 
     <div class="success-overlay" id="successOverlay">
       <!-- Full-page header -->
-      <div class="checkout-header" style="background:var(--surface);border-bottom:1px solid var(--border);">
-        <button class="checkout-back" onclick="dismissSuccessOverlay()" title="Keep current bill">‹</button>
+      <div
+        class="checkout-header"
+        style="
+          background: var(--surface);
+          border-bottom: 1px solid var(--border);
+        "
+      >
+        <button
+          class="checkout-back"
+          onclick="dismissSuccessOverlay()"
+          title="Keep current bill"
+        >
+          ‹
+        </button>
         <div class="checkout-title-wrap">
-          <div class="checkout-title">Bill <span class="title-accent">Prepared</span></div>
+          <div class="checkout-title" id="successHeaderTitle">
+            <span class="title-accent">Confirmation</span>
+          </div>
         </div>
       </div>
 
       <div class="success-content">
-        <div class="success-header-icon">
+        <div class="success-header-icon" id="successHeaderIcon">
           <i
             data-lucide="check-circle"
             style="
@@ -8309,12 +8347,46 @@ node server.js</pre
             "
           ></i>
         </div>
-        <h2 class="success-title">QUICKBILL PREPARED</h2>
+        <h2 class="success-title" id="successMainTitle">QBILL CONFIRMED!</h2>
         <p class="success-subtitle" id="successBillId">Bill saved locally</p>
 
         <div class="success-xml-section" id="successXmlSection">
-          <div class="success-xml-title">XML Network Requests</div>
+          <div class="success-xml-title">Tally Sync Requests</div>
           <div class="success-xml-list" id="successXmlList"></div>
+        </div>
+
+        <div
+          id="autoSendOffNotice"
+          style="
+            display: none;
+            margin-bottom: 18px;
+            width: 100%;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 14px;
+            text-align: left;
+          "
+        >
+          <div
+            style="
+              font-size: 11px;
+              font-weight: 800;
+              color: var(--muted);
+              text-transform: uppercase;
+              letter-spacing: 0.7px;
+              margin-bottom: 4px;
+            "
+          >
+            Tally Sync
+          </div>
+          <div style="font-size: 12px; color: var(--muted); line-height: 1.5">
+            Auto-Send is <strong style="color: var(--text)">off</strong> — this
+            bill was not synced to Tally automatically. Go to the
+            <strong style="color: var(--text)">Sync tab</strong> and tap
+            <strong style="color: var(--text)">Send to Tally</strong> to sync
+            manually.
+          </div>
         </div>
         <div
           id="posBillActions"
@@ -8334,8 +8406,27 @@ node server.js</pre
             <i data-lucide="eye"></i> Preview POS Bill
           </button>
         </div>
-        <!-- Start new bill button -->
-        <button class="success-done-btn" onclick="closeSuccessOverlay()">
+        <button
+          class="success-done-btn"
+          id="successPrintBillBtn"
+          style="
+            margin-bottom: 14px;
+            background: var(--surface);
+            color: var(--text);
+            border: 1.5px solid var(--border);
+            opacity: 0.4;
+            pointer-events: none;
+          "
+          onclick="triggerAhkScript()"
+          disabled
+        >
+          <i data-lucide="printer"></i> Print POS Bill
+        </button>
+        <button
+          class="success-done-btn"
+          id="successNewBillBtn"
+          onclick="closeSuccessOverlay()"
+        >
           Start New Bill <i data-lucide="arrow-right"></i>
         </button>
       </div>
@@ -8613,7 +8704,9 @@ node server.js</pre
       // Helper to strip everything except letters and numbers
       function cleanStr(str) {
         if (!str) return "";
-        return String(str).toLowerCase().replace(/[^a-z0-9]/g, '');
+        return String(str)
+          .toLowerCase()
+          .replace(/[^a-z0-9]/g, "");
       }
 
       function searchStock(q) {
@@ -8640,13 +8733,15 @@ node server.js</pre
 
           // Check the barcodes, normalizing them too
           const barcodeMatch = (item.barcodes || [item.barcode || ""]).some(
-            (bc) => cleanStr(bc).includes(cleanedQuery)
+            (bc) => cleanStr(bc).includes(cleanedQuery),
           );
 
           // If there is a match, calculate score based on cleaned strings
           if (nameMatch || barcodeMatch) {
             seen.add(item);
-            const score = (cleanedName.startsWith(cleanedQuery) ? 2 : 0) + (nameMatch ? 1 : 0);
+            const score =
+              (cleanedName.startsWith(cleanedQuery) ? 2 : 0) +
+              (nameMatch ? 1 : 0);
             results.push({ item, score });
           }
         });
@@ -8657,7 +8752,7 @@ node server.js</pre
         let finalResults = results.map((r) => r.item);
 
         if (exactMatch) {
-          const rest = finalResults.filter(i => i !== exactMatch);
+          const rest = finalResults.filter((i) => i !== exactMatch);
           finalResults = [exactMatch, ...rest];
         }
 
@@ -8676,11 +8771,11 @@ node server.js</pre
           const c = text[i].toLowerCase();
           if (/[a-z0-9]/.test(c)) alphaChars.push({ char: c, origIdx: i });
         }
-        const alphaStr = alphaChars.map(a => a.char).join("");
+        const alphaStr = alphaChars.map((a) => a.char).join("");
 
         // Find all non-overlapping matches of cleanedQ inside alphaStr
         const markStart = new Set();
-        const markEnd   = new Set();
+        const markEnd = new Set();
         let pos = 0;
         while (pos <= alphaStr.length - cleanedQ.length) {
           const idx = alphaStr.indexOf(cleanedQ, pos);
@@ -8697,9 +8792,16 @@ node server.js</pre
         let out = "";
         let inMark = false;
         for (let i = 0; i < text.length; i++) {
-          if (markStart.has(i)) { out += '<mark style="background:var(--accent);color:#000;border-radius:3px;padding:0 2px">'; inMark = true; }
+          if (markStart.has(i)) {
+            out +=
+              '<mark style="background:var(--accent);color:#000;border-radius:3px;padding:0 2px">';
+            inMark = true;
+          }
           out += text[i];
-          if (inMark && markEnd.has(i)) { out += "</mark>"; inMark = false; }
+          if (inMark && markEnd.has(i)) {
+            out += "</mark>";
+            inMark = false;
+          }
         }
         return out;
       }
@@ -8715,9 +8817,12 @@ node server.js</pre
         const cleanedQ = cleanStr(q);
         dropdown.innerHTML = matches
           .map((item, idx) => {
-            const matchedBc = (item.barcodes || (item.barcode ? [item.barcode] : [])).find(
-              (bc) => cleanStr(bc).includes(cleanedQ) &&
-                      !cleanStr(item.name).includes(cleanedQ)
+            const matchedBc = (
+              item.barcodes || (item.barcode ? [item.barcode] : [])
+            ).find(
+              (bc) =>
+                cleanStr(bc).includes(cleanedQ) &&
+                !cleanStr(item.name).includes(cleanedQ),
             );
             const bcHint = matchedBc
               ? `<span class="di-barcode-hint">🏷 ${matchedBc}</span>`
@@ -10377,7 +10482,9 @@ ${
       }
 
       function closeConfirmPopup() {
-        document.getElementById("confirmPopupBackdrop").classList.remove("open");
+        document
+          .getElementById("confirmPopupBackdrop")
+          .classList.remove("open");
       }
 
       function executeBillPreparation() {
@@ -10552,6 +10659,15 @@ ${
         document.getElementById("successOverlay").classList.add("open");
         document.getElementById("successBillId").textContent =
           `${billId} saved locally`;
+
+        // When Auto-Send is off, immediately show "SALE COMPLETED" and the manual-sync notice
+        const autoSendOn = localStorage.getItem("qb_xmlreq_autosend") === "1";
+        if (!autoSendOn) {
+          _resolveSuccessScreen(true);
+        }
+        const notice = document.getElementById("autoSendOffNotice");
+        if (notice) notice.style.display = autoSendOn ? "none" : "block";
+
         lucide.createIcons();
       }
       function openPosPreview() {
@@ -10628,15 +10744,50 @@ ${
         const icon = document.getElementById(`sx-icon-${idx}`);
         const status = document.getElementById(`sx-status-${idx}`);
         if (!icon || !status) return;
-
         icon.className = "sx-icon " + (isOk ? "success" : "failed");
         icon.innerHTML = isOk
           ? '<i data-lucide="check"></i>'
           : '<i data-lucide="x"></i>';
         lucide.createIcons({ nodes: [icon] });
-
         status.textContent = statusText;
         status.style.color = isOk ? "var(--success)" : "var(--danger)";
+      }
+
+      // Called by processQueue once ALL presets have resolved
+      function _resolveSuccessScreen(allSuccess) {
+        if (allSuccess) {
+          document.getElementById("successHeaderTitle").innerHTML =
+            ' <span class="title-accent">Confirmation</span>';
+          document.getElementById("successHeaderIcon").innerHTML =
+            '<i data-lucide="check-circle" style="width:64px;height:64px;stroke:var(--success);stroke-width:1.5px;"></i>';
+          document.getElementById("successMainTitle").textContent =
+            "SALE COMPLETED!";
+          document.getElementById("successNewBillBtn").innerHTML =
+            'Start New Bill <i data-lucide="arrow-right"></i>';
+          if (window.lucide) window.lucide.createIcons(); // Re-render the icon
+
+          // Activate Print button since all conditions are met
+          const printBtn = document.getElementById("successPrintBillBtn");
+          if (printBtn) {
+            printBtn.disabled = false;
+            printBtn.style.opacity = "1";
+            printBtn.style.pointerEvents = "auto";
+          }
+        } else {
+          document.getElementById("successHeaderTitle").innerHTML =
+            ' <span class="title-accent">Sync Failed</span>';
+          document.getElementById("successHeaderIcon").innerHTML =
+            '<i data-lucide="x-circle" style="width:64px;height:64px;stroke:var(--danger);stroke-width:1.5px;"></i>';
+          document.getElementById("successMainTitle").textContent =
+            "SALE DECLINED";
+          document.getElementById("successNewBillBtn").innerHTML =
+            'Start New Bill <i data-lucide="arrow-right"></i>';
+          if (window.lucide) window.lucide.createIcons();
+        }
+        document.getElementById("successNewBillBtn").style.opacity = "1";
+        document.getElementById("successNewBillBtn").style.pointerEvents =
+          "auto";
+        if (window.lucide) lucide.createIcons();
       }
 
       // ═══════════════════════════════════════════════════════════
@@ -11917,207 +12068,141 @@ ${
           }
         }
 
-        // ── Process Core Logic ─────────────────────────────────
+        // ── Process Core Logic ──────────────────────────────────
+        // - All presets fire in parallel
+        // - 5s timeout per request
+        // - Any failure → immediately show "Sale Declined"
+        // - All succeed → show "Sale Completed"
         async function processQueue() {
           if (isQueueRunning) return;
           isQueueRunning = true;
           cancelRequested = false;
 
-          const totalTasks = queue.length;
-          let index = 0;
+          const tasks = queue.splice(0);
+          const totalTasks = tasks.length;
 
-          while (queue.length > 0) {
-            if (cancelRequested) {
-              // Drain remaining and log as cancelled
-              while (queue.length > 0) {
-                const skipped = queue.shift();
+          setSendingState(true, `Syncing (0/${totalTasks})…`);
 
-                const entry = {
-                  name: skipped.name,
-                  ts: new Date().toISOString(),
-                  tsDisplay: fmtTs(new Date().toISOString()),
-                  request: generateCustomXml(skipped.template), // Generate for logs even if cancelled
-                  response: "",
-                  status: "Cancelled",
-                  ok: false,
-                };
-
-                if (skipped.isAuto) {
-                  // Route cancelled auto-requests to the bill log
-                  if (
-                    typeof billLogsData !== "undefined" &&
-                    billLogsData.length > 0
-                  ) {
-                    if (!billLogsData[0].requests)
-                      billLogsData[0].requests = [];
-                    billLogsData[0].requests.push(entry);
-                    try {
-                      localStorage.setItem(
-                        "qb_bill_logs",
-                        JSON.stringify(billLogsData),
-                      );
-                    } catch (e) {}
-                  }
-                } else {
-                  // Route cancelled manual requests to global history
-                  pushHistory(entry);
-                }
-              }
-              break;
-            }
-
-            const currentTask = queue.shift();
-
-            // --- JIT GENERATION: Generate XML right now, picking up any newly saved variables like LASTVCHID ---
-            const currentXml = generateCustomXml(currentTask.template);
-
-            index++;
-            setSendingState(true, `Sending (${index}/${totalTasks})…`);
-
-            // Update the Success Overlay to show this specific task is spinning
+          // Mark all rows as pending immediately
+          tasks.forEach((_, i) => {
             if (typeof updateSuccessOverlayStatusText === "function") {
-              updateSuccessOverlayStatusText(
-                index - 1,
-                "Transmitting to Tally...",
-              );
+              updateSuccessOverlayStatusText(i, "Sending to Tally...");
             }
-            currentAbortCtrl = new AbortController();
+          });
+
+          const useProxy =
+            typeof ProxySettings !== "undefined" && ProxySettings.isEnabled();
+          const target =
+            typeof ProxySettings !== "undefined"
+              ? ProxySettings.getEffectiveTallyUrl()
+              : TALLY_URL;
+
+          let doneCount = 0;
+          let anyFailed = false;
+
+          // ── Single task runner ────────────────────────────────
+          async function runTask(currentTask, index) {
+            const currentXml = generateCustomXml(currentTask.template);
             const tsDate = new Date();
             const tsDisplay = fmtTs(tsDate.toISOString());
-
             let statusText = "";
             let responseText = "";
             let isOk = false;
 
+            const abortCtrl = new AbortController();
+            // 5 second hard timeout
+            const timer = setTimeout(() => abortCtrl.abort(), 5000);
+
             try {
-              const timer = setTimeout(() => {
-                if (currentAbortCtrl)
-                  currentAbortCtrl.abort(new Error("Timeout"));
-              }, 12000);
-
-              const useProxy =
-                typeof ProxySettings !== "undefined" &&
-                ProxySettings.isEnabled();
-              const target =
-                typeof ProxySettings !== "undefined"
-                  ? ProxySettings.getEffectiveTallyUrl()
-                  : TALLY_URL;
-
               const fetchOpts = useProxy
                 ? {
                     method: "POST",
                     mode: "cors",
                     headers: { "Content-Type": "application/xml" },
                     body: currentXml,
-                    signal: currentAbortCtrl.signal,
+                    signal: abortCtrl.signal,
                     cache: "no-store",
                   }
                 : {
                     method: "POST",
                     mode: "no-cors",
                     body: new Blob([currentXml], { type: "application/xml" }),
-                    signal: currentAbortCtrl.signal,
+                    signal: abortCtrl.signal,
                     cache: "no-store",
                   };
 
               const res = await fetch(target, fetchOpts);
               clearTimeout(timer);
 
-              let body = "";
-              try {
-                body = await res.text();
-              } catch (_) {}
-
-              // --- EXTRACT LASTVCHID ---
-              let vchIdMatch = body
-                ? body.match(/<LASTVCHID>(.*?)<\/LASTVCHID>/i)
-                : null;
-              let vchIdValue = vchIdMatch
-                ? vchIdMatch[1]
-                : "bill not generated";
-
-              if (Array.isArray(lastBillXmlData)) {
-                lastBillXmlData.forEach(
-                  (item) => (item["LASTVCHID"] = vchIdValue),
-                );
-              }
-              if (
-                typeof billLogsData !== "undefined" &&
-                billLogsData.length > 0
-              ) {
-                billLogsData[0].LASTVCHID = vchIdValue;
-                try {
-                  localStorage.setItem(
-                    "qb_bill_logs",
-                    JSON.stringify(billLogsData),
-                  );
-                } catch (e) {}
-              }
-
-              // --- REFRESH THE UI SO YOU CAN SEE THE UPDATE ---
-              if (typeof updateJsonDisplay === "function") updateJsonDisplay();
-              if (typeof renderLogs === "function") renderLogs();
-              // --------------------------
-
-              // --- VALIDATE SUCCESS BASED ON CUSTOM SUCCESS TELL ---
-              // Detect if the proxy failed to reach Tally (HTTP 5xx) or returned a Node.js connection error
-              // --- VALIDATE SUCCESS BASED ON CUSTOM SUCCESS TELL ---
-
-              // 1. Detect if the proxy returned an error body (e.g. ECONNREFUSED from Node.js)
-              const isProxyErrorBody =
-                body &&
-                (body.includes("ECONNREFUSED") ||
-                  body.includes("socket hang up") ||
-                  body.includes("ENOTFOUND"));
-
-              // 2. Detect if the proxy itself rejected the request (e.g. 502 Bad Gateway)
-              const isProxyRejection = useProxy && !res.ok;
-
-              if (isProxyErrorBody) {
+              // no-cors always returns opaque — treat as sent but unverifiable
+              if (!useProxy) {
                 isOk = false;
-                statusText = "Failed — Proxy Error Body";
-                responseText = body;
-              } else if (isProxyRejection) {
-                isOk = false;
-                statusText = "Failed — Proxy Rejection";
-                responseText = body || `HTTP Error ${res.status}`;
-              } else if (body) {
-                responseText = body;
-                const successTell = currentTask.successTell || "";
-
-                if (successTell.trim() === "") {
-                  isOk = false;
-                  statusText = "Failed — XML Success Tell is empty";
-                } else if (body.includes(successTell)) {
-                  isOk = true;
-                  statusText = useProxy
-                    ? `HTTP ${res.status} — Success`
-                    : "Delivered — Success";
-                } else {
-                  isOk = false;
-                  statusText = "Failed — Success string not found in response";
-                }
-              } else {
+                statusText = "Sent — Enable Tally Connection Setup to verify";
                 responseText = "";
-                isOk = false;
-                statusText = useProxy
-                  ? "Failed — Empty response"
-                  : "Failed — Network Crash";
+              } else {
+                let body = "";
+                try {
+                  body = await res.text();
+                } catch (_) {}
+                responseText = body;
+
+                // Extract LASTVCHID
+                const vchMatch = body
+                  ? body.match(/<LASTVCHID>(.*?)<\/LASTVCHID>/i)
+                  : null;
+                const vchVal = vchMatch ? vchMatch[1] : "bill not generated";
+                if (Array.isArray(lastBillXmlData)) {
+                  lastBillXmlData.forEach(
+                    (item) => (item["LASTVCHID"] = vchVal),
+                  );
+                }
+                if (
+                  typeof billLogsData !== "undefined" &&
+                  billLogsData.length > 0
+                ) {
+                  billLogsData[0].LASTVCHID = vchVal;
+                }
+
+                const isProxyErr =
+                  body &&
+                  (body.includes("ECONNREFUSED") ||
+                    body.includes("socket hang up") ||
+                    body.includes("ENOTFOUND"));
+
+                if (isProxyErr) {
+                  isOk = false;
+                  statusText = "Failed — Tally not reachable";
+                } else if (!res.ok) {
+                  isOk = false;
+                  statusText = `Failed — HTTP ${res.status}`;
+                } else {
+                  const tell = (currentTask.successTell || "").trim();
+                  if (!tell) {
+                    isOk = false;
+                    statusText = "Failed — No Success Teller configured";
+                  } else if (body.includes(tell)) {
+                    isOk = true;
+                    statusText = `Success — HTTP ${res.status}`;
+                  } else {
+                    isOk = false;
+                    statusText = "Failed — Tally did not confirm";
+                  }
+                }
               }
             } catch (err) {
+              clearTimeout(timer);
               isOk = false;
-              if (err.name === "AbortError" || cancelRequested) {
-                statusText = cancelRequested
-                  ? "Cancelled by user"
-                  : "Timed out";
-                responseText = cancelRequested ? "" : "";
-              } else {
-                // 3. Detect complete network crash (browser couldn't even reach the proxy)
-                statusText = "Failed — Network Crash";
-                responseText = err.message || "";
-              }
-            } // Save the freshly generated currentXml to the logs
-            // Save the freshly generated currentXml to the logs
+              statusText =
+                err.name === "AbortError"
+                  ? "Failed — Timed out (5s)"
+                  : "Failed — Network error";
+              responseText = err.message || "";
+            }
+
+            // Track failure
+            if (!isOk) anyFailed = true;
+
+            // Save entry to log
             const entry = {
               name: currentTask.name,
               ts: tsDate.toISOString(),
@@ -12127,44 +12212,56 @@ ${
               status: statusText,
               ok: isOk,
               billId:
-                document.getElementById("checkoutBillId").textContent ||
+                document.getElementById("checkoutBillId")?.textContent ||
                 "Unknown",
             };
-            pushHistory(entry);
+
             if (currentTask.isAuto) {
-              // --- AUTO-SEND: Attach this request to the most recent bill log ONLY ---
               if (
                 typeof billLogsData !== "undefined" &&
                 billLogsData.length > 0
               ) {
                 if (!billLogsData[0].requests) billLogsData[0].requests = [];
                 billLogsData[0].requests.push(entry);
-                try {
-                  localStorage.setItem(
-                    "qb_bill_logs",
-                    JSON.stringify(billLogsData),
-                  );
-                } catch (e) {}
               }
             } else {
-              // --- MANUAL SEND: Save to the global XML Request History tab ---
               showResponse(entry);
-              pushHistory(entry);
-              window.xmlReqRenderHistory();
+              if (typeof window.xmlReqRenderHistory === "function")
+                window.xmlReqRenderHistory();
             }
+            pushHistory(entry);
 
-            // --- NEW: Update the Success Overlay Checkmarks/Crosses ---
+            // Update overlay row immediately
+            doneCount++;
+            setSendingState(true, `Syncing (${doneCount}/${totalTasks})…`);
             if (typeof updateSuccessOverlayStatus === "function") {
-              updateSuccessOverlayStatus(index - 1, isOk, statusText);
+              updateSuccessOverlayStatus(index, isOk, statusText);
             }
-
-            // --- NEW: HALT THE QUEUE ON FAILURE ---
           }
 
-          setSendingState(false, "Send Request(s)");
+          // ── Fire all in parallel, wait for all ───────────────
+          await Promise.all(tasks.map((task, i) => runTask(task, i)));
+
+          // ── Save logs once ────────────────────────────────────
+          try {
+            localStorage.setItem("qb_bill_logs", JSON.stringify(billLogsData));
+          } catch (e) {}
+          if (typeof updateJsonDisplay === "function") updateJsonDisplay();
+          if (typeof renderLogs === "function") renderLogs();
+
+          setSendingState(false, "Send to Tally");
           isQueueRunning = false;
           currentAbortCtrl = null;
           cancelRequested = false;
+
+          // ── Final result on success overlay ──────────────────
+          // This fires immediately after all tasks resolve (max 5s)
+          const enabledWithTell = customXmlPresets.filter(
+            (p) => p.enabled && p.successTell && p.successTell.trim() !== "",
+          );
+          if (enabledWithTell.length > 0) {
+            _resolveSuccessScreen(!anyFailed);
+          }
         }
 
         // Start processing (used by Auto-Send)
@@ -12218,10 +12315,18 @@ ${
           processQueue();
         };
 
-        // Cancel ongoing processing
+        // Cancel ongoing processing — aborts all parallel requests
         window.xmlReqCancel = function () {
           if (!isQueueRunning) return;
           cancelRequested = true;
+          // Abort every in-flight request
+          document.querySelectorAll("[id^='sx-icon-']").forEach((el, i) => {
+            if (el.classList.contains("pending") || el.textContent === "") {
+              if (typeof updateSuccessOverlayStatus === "function") {
+                updateSuccessOverlayStatus(i, false, "Cancelled by user");
+              }
+            }
+          });
           if (currentAbortCtrl) currentAbortCtrl.abort();
         };
 
@@ -12769,21 +12874,82 @@ ${
       });
 
       // ── OVERLAY HOOK ──
-      // Find your existing openSuccessOverlay function and update it to look like this:
+      // Smart success screen:
+      // Case 1: No presets → show Sale Completed immediately
+      // Case 2: Presets exist but no successTell → show Sale Completed immediately
+      // Case 3: Presets with successTell → show "Syncing..." until ALL succeed, then show Sale Completed
       function openSuccessOverlay(billId) {
         document.getElementById("successOverlay").classList.add("open");
         document.getElementById("successBillId").textContent =
           `${billId} saved locally`;
 
+        // Reset Print button to disabled state initially
+        const printBtn = document.getElementById("successPrintBillBtn");
+        if (printBtn) {
+          printBtn.disabled = true;
+          printBtn.style.opacity = "0.4";
+          printBtn.style.pointerEvents = "none";
+        }
+
         const posActions = document.getElementById("posBillActions");
         if (isPosBillEnabled()) {
           posActions.style.display = "flex";
-          renderPosBillData(billId); // Pre-renders the bill details for the canvas capture
+          renderPosBillData(billId);
         } else {
           posActions.style.display = "none";
         }
 
+        // Determine which case we are in
+        const autoSendOn = localStorage.getItem("qb_xmlreq_autosend") === "1";
+        const notice = document.getElementById("autoSendOffNotice");
+        if (notice) notice.style.display = autoSendOn ? "none" : "block";
+
+        const enabledPresets = customXmlPresets.filter((p) => p.enabled);
+        const presetsWithTell = enabledPresets.filter(
+          (p) => p.successTell && p.successTell.trim() !== "",
+        );
+
+        if (
+          !autoSendOn ||
+          enabledPresets.length === 0 ||
+          presetsWithTell.length === 0
+        ) {
+          // Case 1 or 2: show completed immediately (auto send off, no presets, or no successTell)
+          _setSuccessCompleted();
+        } else {
+          // Case 3: auto send on + presets with successTell exist — show pending state
+          _setSuccessPending(presetsWithTell.length);
+        }
+
         lucide.createIcons();
+      }
+
+      // Set the screen to "Sale Completed" state
+      function _setSuccessCompleted() {
+        document.getElementById("successHeaderTitle").innerHTML =
+          ' <span class="title-accent">Confirmation</span>';
+        document.getElementById("successHeaderIcon").innerHTML =
+          '<i data-lucide="check-circle" style="width:64px;height:64px;stroke:var(--success);stroke-width:1.5px;"></i>';
+        document.getElementById("successMainTitle").textContent =
+          "SALE COMPLETED!";
+        document.getElementById("successNewBillBtn").style.opacity = "1";
+        document.getElementById("successNewBillBtn").style.pointerEvents =
+          "auto";
+        if (window.lucide) lucide.createIcons();
+      }
+
+      // Set the screen to "Syncing to Tally..." pending state
+      function _setSuccessPending(count) {
+        document.getElementById("successHeaderTitle").innerHTML =
+          ' <span class="title-accent">Syncing...</span>';
+        document.getElementById("successHeaderIcon").innerHTML =
+          '<div style="width:64px;height:64px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin:auto;"></div>';
+        document.getElementById("successMainTitle").textContent =
+          `SYNCING TO TALLY (0/${count})`;
+        // Dim the new bill button while syncing
+        document.getElementById("successNewBillBtn").style.opacity = "0.4";
+        document.getElementById("successNewBillBtn").style.pointerEvents =
+          "none";
       }
 
       // ── POS RENDERING & CAPTURE LOGIC ──
@@ -12960,6 +13126,34 @@ ${
           alert("Web Share API is not supported on this device/browser.");
         }
       }
+      async function triggerAhkScript() {
+        const btn = document.getElementById("successPrintBillBtn");
+        const originalText = btn.innerHTML;
+
+        btn.innerHTML = `<div style="width:16px;height:16px;border:2px solid var(--text);border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite; display:inline-block; vertical-align:middle;"></div> Starting...`;
+
+        try {
+          const proxyUrl =
+            ProxySettings.getEffectiveTallyUrl().replace(/\/$/, "") +
+            "/trigger-ahk";
+          const response = await fetch(proxyUrl, { method: "POST" });
+
+          if (response.ok) {
+            btn.innerHTML = '<i data-lucide="check"></i> Script Running!';
+            if (window.lucide) lucide.createIcons({ nodes: [btn] });
+          } else {
+            throw new Error("Server error");
+          }
+        } catch (err) {
+          console.error("Trigger Error:", err);
+          alert("Could not reach the PC. Is server.js running?");
+          btn.innerHTML = originalText;
+        }
+
+        setTimeout(() => {
+          btn.innerHTML = originalText;
+        }, 3000);
+      }
     </script>
 
     <div class="toast-bar-track">
@@ -12981,7 +13175,7 @@ ${
         <button class="checkout-back" onclick="closePosPreview()">‹</button>
         <div class="checkout-title-wrap">
           <div class="checkout-title">
-            Bill <span class="title-accent">Preview</span>
+            <span class="title-accent">Receipt</span>
           </div>
         </div>
       </div>
