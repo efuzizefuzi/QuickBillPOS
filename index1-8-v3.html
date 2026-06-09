@@ -13270,9 +13270,10 @@ ${
         btn.innerHTML = `<div style="width:16px;height:16px;border:2px solid var(--text);border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite; display:inline-block; vertical-align:middle;"></div> Starting...`;
 
         try {
-          const proxyUrl =
-            ProxySettings.getEffectiveTallyUrl().replace(/\/$/, "") +
-            "/trigger-ahk";
+          // Force the phone to use the exact IP address it used to load the webpage
+          const pcIpAddress = window.location.hostname; 
+          const proxyUrl = `http://${pcIpAddress}:3000/trigger-ahk`;
+          
           const response = await fetch(proxyUrl, { method: "POST" });
 
           if (response.ok) {
